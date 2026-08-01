@@ -1,6 +1,6 @@
 name: CodeQL
 
-# 静的解析（G-3-3 c1）。public リポなので code scanning が無料で使える。
+# 静的解析。public リポなので code scanning が無料で使える。
 # 結果は GitHub Security → Code scanning に上がり、run URL が evidence になる。
 on:
   push:

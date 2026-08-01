@@ -1,6 +1,6 @@
 name: prod-smoke
 
-# 本番到達の外部事実チェック（G-2-2）。
+# 本番到達の外部事実チェック。
 # 実行環境(サンドボックス)は *.vercel.app への外向きが遮断されるため、
 # プロキシ外の実機である GitHub Actions に本番URLを curl させて機械判定する。
 # この run が緑＝「公開URLが 200 かつ本文に 'cc-v2 monorepo'」の evidence。
@@ -18,7 +18,7 @@ jobs:
     name: prod 200 + marker
     runs-on: ubuntu-latest
     steps:
-      - name: curl production (200 かつ 'cc-v2 monorepo') — G-2-2
+      - name: curl production (200 かつ 'cc-v2 monorepo')
         run: |
           echo "Checking ${PROD_URL}"
           code=$(curl -sS -o body.html -w '%{http_code}' --max-time 30 "${PROD_URL}")
@@ -33,7 +33,7 @@ jobs:
           fi
           echo "PROD OK: 200 かつ 'cc-v2 monorepo' を ${PROD_URL} で確認"
 
-      - name: HSTS ヘッダを確認 — G-3-3 c2
+      - name: HSTS ヘッダを確認
         run: |
           # 本番が https かつ Strict-Transport-Security を返すこと（外部事実）。
           hdrs=$(curl -sSI --max-time 30 "${PROD_URL}")
@@ -44,7 +44,7 @@ jobs:
           fi
           echo "HSTS OK: Strict-Transport-Security を確認"
 
-      - name: ヘルスチェック /api/health が 200 — G-4-1 裏打ち
+      - name: ヘルスチェック /api/health が 200
         run: |
           code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "${PROD_URL}/api/health")
           echo "HTTP(/api/health)=${code}"
