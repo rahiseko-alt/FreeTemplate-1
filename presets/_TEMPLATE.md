@@ -12,11 +12,9 @@
 > 持ち込むプロダクトのスタックが同梱サンプルと異なる場合は、`.github/workflows/ci.yml` を
 > 実際のコマンドへ書き換えること（ルート `AGENTS.md`「スタックは『ここでは決めない』」参照）。
 >
-> **機械強制の有効化（新リポジトリで1回だけ・新規開発/持ち込み共通・実地検証済み手順）**：
-> (1) リポジトリを **Public** にする（無料 Private では branch protection が効かない）。
-> (2) Settings → **Branches**（Rulesets ではない）→ Add branch protection rule →
-> Branch name pattern に `main` → Require status checks で **`ci-green`** を選ぶ → **Create**。
-> 詳細はルート `AGENTS.md`「新規案件の初期化フロー」手順0。エンジニアは `bash scripts/setup.sh` でも可。
+> **機械強制の有効化（新リポジトリで1回だけ・新規開発/持ち込み共通）**：手順はルート `AGENTS.md`
+> 「新規案件の初期化フロー」手順0を参照（要点：リポジトリをPublicにし、`ci-green` を main の
+> branch protection で必須化する）。エンジニアは `bash scripts/setup.sh` でも可。
 
 ## 概要
 

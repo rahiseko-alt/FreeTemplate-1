@@ -30,10 +30,7 @@
 5. 以降は通常運用（`docs/handoff.md` の上書き＋`docs/failures.md` への追記）。
 
 - **進捗管理は軽量**：このテンプレは進捗・引継ぎを `docs/handoff.md`（①今回実施 ②今回トラブル
-  ③次回やる事の3項目、毎回上書き）だけで管理する。案件のゴールを事前に原子分解したツリーを作る
-  ような仕組みは持たない。理由：そうした事前分解は「ゴールが曖昧なゼロベース開発」でのみ価値があり、
-  既に完成したプロダクトを持ち込む主要用途では、既存の実装・実績を事後的にツリーへ翻訳し直すだけの
-  無意味な作業になるため。
+  ③次回やる事の3項目、毎回上書き）だけで管理する。
 
 ## 普遍ルール（言語・クラウドに依存しない）
 
@@ -46,7 +43,7 @@
 - 変更後は、**その案件で定義されたチェック**（型 / Lint / テスト）を通してからコミットする。
 - 既存のコードスタイル・構成に合わせる。**指示のない大規模リファクタリングは禁止**。
 - 依存ライブラリの追加やパッケージマネージャーの混在は勝手にやらない（理由を添えて提案する）。
-- コミットは小さく、説明的に。
+- コミットは小さく、説明的に（1 コミット＝1 目的）。
 
 ## 検証の規律（恒久ルール）— 本人採点の禁止
 
@@ -70,7 +67,7 @@
 ```bash
 pnpm install --frozen-lockfile
 pnpm -r typecheck
-pnpm -r lint                        # 全パッケージ本物（echo 禁止）
+pnpm -r lint                        # 全パッケージ本物
 pnpm -r test                        # Vitest 実テスト（0 件・ダミーで緑にしない）
 pnpm -r build
 pnpm audit --audit-level moderate   # 依存の脆弱性ゲート（moderate 以上で落ちる）
@@ -79,15 +76,6 @@ pnpm audit --audit-level moderate   # 依存の脆弱性ゲート（moderate 以
 - テストも lint も**本物**だけを置く。`echo` による見かけの成功は偽の緑として扱い、禁止。
 - 新しいパッケージを足したら、そのパッケージにも実テスト・実 lint を用意する。
 - 上記は CI（`.github/workflows/ci.yml`）でも同じく回り、機械の審判となる。
-
-## PR instructions（コミット/PR）
-
-- コミットは小さく・説明的に。1 コミット＝1 目的。
-- 上記 Testing を緑にしてからコミットする。
-- 変更は PR を出し、**誰でもレビュー/承認してマージ**してよい。守るのは CI が緑なことだけ。
-- 意味のある区切りがついたセッションでは、PRを出す前に `docs/handoff.md` を更新する
-  （①今回実施 ②今回トラブル ③次回やる事）。ただし機械的な必須ゲートは設けない（軽量運用のため、
-  毎PRでの更新をCIが強制することはない）。
 
 ## セッション開始/終了の儀式（引継ぎ）
 
@@ -147,8 +135,7 @@ pnpm audit --audit-level moderate   # 依存の脆弱性ゲート（moderate 以
        **Branch name pattern に `main`**（空だと Create が押せない）→「Require status checks to pass before merging」に
        チェック → 検索欄で **`ci-green`** →「Require a pull request before merging」にもチェック（Required approvals は
        classic API/UIでは 0 を選べないため、代わりに Required approvals を **1** にするか、(A) Rulesets を使う → 一番下の緑「**Create**」。
-     - ⚠ **無料 Private では (A)(B) いずれも強制されない**（Rulesets は Team org 必須の警告が出る＝実地で確認済み）。
-       だから前提として手順0-a で **Public** にする。Public にしない場合は歯止めが掛からないので `auto-merge` を無効化し人手マージにする。
+     - ⚠ **(A)(B) いずれも無料 Private では強制されない**（理由・対処は上記手順0-aを参照）。
    - **手順0-c：Secret Protection / Push protection を有効化する** — Settings → **Security → Code security**
      （旧 Security and analysis）→「Secret Protection」「Push protection」をそれぞれ **Enable**（Public repo なら無料）。
      未有効だと、誤って API キー等をコミットしても検知・ブロックされない（実地で確認済み＝ボタンが「Enable」表示なら未有効）。
@@ -218,8 +205,8 @@ pnpm audit --audit-level moderate   # 依存の脆弱性ゲート（moderate 以
 
 ## 配下ごとの調整（オーバーライド）
 
-サブディレクトリ（または各案件リポジトリ）に `AGENTS.md` を置くと、そこで実スタックを宣言する。
-書いていない項目はこのルートの普遍ルールを継承する。
+サブディレクトリ（または各案件リポジトリ）に `AGENTS.md` を置くと、そこで実スタックを宣言する
+（継承の優先順位は冒頭「このファイルの権威」を参照）。
 
 - 案件用の雛形: `presets/_TEMPLATE.md`
 - 記入済みの実例: `apps/web/AGENTS.md`（Next.js + Vercel 構成）
