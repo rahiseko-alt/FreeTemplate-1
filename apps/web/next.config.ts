@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   // @repo/ui exports raw .tsx source; let Next transpile it.
   transpilePackages: ["@repo/ui"],
 
-  // 最小セキュリティヘッダ（G-3-3 c2）。本番は Vercel が HTTPS を終端するので、
+  // 最小セキュリティヘッダ。本番は Vercel が HTTPS を終端するので、
   // ここで HSTS を含む最小ヘッダを全ルートに付与する。
   async headers() {
     return [

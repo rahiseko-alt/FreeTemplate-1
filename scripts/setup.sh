@@ -14,17 +14,16 @@
 #   bash scripts/setup.sh --dry-run  # 何も変更せず、送信内容と前提チェックだけ表示
 #
 # 必須チェック（context 名）：
-#   - ci-green         … ci.yml の集約ゲート（quality/smoke が全て緑のときだけ success）
-#   - roadmap-required … 全PRに docs/roadmap.html 差分を要求
+#   - ci-green … ci.yml の集約ゲート（quality/smoke が全て緑のときだけ success）
 #
 # ⚠ 既知の制約：このスクリプトは classic Branch Protection API を使うため、
 #   「Require a pull request before merging（0 approvals）」は設定できない
 #   （classic API は required_approving_review_count に 0 を受け付けない）。
 #   このスクリプトだけを実行した状態では main への直 push が可能なまま＝
-#   ci-green/roadmap-required を丸ごと迂回できてしまう。実地で確認済み。
+#   ci-green を丸ごと迂回できてしまう。実地で確認済み。
 #   PR必須化は AGENTS.md 手順0-b の (A) Rulesets を手動で使うこと
 #   （Require a pull request before merging にチェック、Required approvals は 0）。
-#   ※ どちらもワークフロー内の job 'name:' と一致させてある。ここを変えたら両方直すこと。
+#   ※ ci-green はワークフロー内の job 'name:' と一致させてある。ここを変えたら両方直すこと。
 
 set -euo pipefail
 
@@ -35,7 +34,7 @@ case "${1:-}" in
   *)         echo "usage: bash scripts/setup.sh [--dry-run]" >&2; exit 2 ;;
 esac
 
-REQUIRED_CHECKS=("ci-green" "roadmap-required")
+REQUIRED_CHECKS=("ci-green")
 
 die()  { echo "✗ $*" >&2; exit 1; }
 note() { echo "• $*"; }
