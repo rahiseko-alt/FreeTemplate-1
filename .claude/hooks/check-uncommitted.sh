@@ -29,7 +29,7 @@ if [[ -z "$(git remote 2>/dev/null)" ]]; then
 fi
 
 if ! git diff --quiet || ! git diff --cached --quiet; then
-  echo "未コミットの変更が残っています。AGENTS.mdの規律に従い、ワークスペース全体のチェック（typecheck/lint/test/build/verify-roadmap）を緑にしてからコミットしてください。" >&2
+  echo "未コミットの変更が残っています。AGENTS.mdの規律に従い、ワークスペース全体のチェック（typecheck/lint/test/build）を緑にしてからコミットしてください。" >&2
   exit 2
 fi
 

@@ -2,7 +2,7 @@ name: auto-merge
 
 # 日常のマージから人間を外す仕組み（3層の tier-0／承認済み tier-1 を自動マージ）。
 # 判定は「機械と門が全部緑か」の1点：
-#   - CI(check runs: quality / smoke / roadmap-required 等) が全て success
+#   - CI(check runs: quality / smoke 等) が全て success
 #   - commit status(basis-gate / prod-smoke) が combined success
 #     ＝ basis-gate が tier-2(人間待ち) や tier-1(bot反証/待ち) を failure にしている間は自動マージされない。
 #   - PR が同一リポ発・非draft・mergeable・`hold` ラベル無し
@@ -69,7 +69,7 @@ jobs:
               echo "skip: commit status = $cstate（門 or prod-smoke が未緑）"; continue
             fi
 
-            # 2) check runs（CI: quality / smoke / roadmap-required 等）が全て success/neutral か。
+            # 2) check runs（CI: quality / smoke 等）が全て success/neutral か。
             #    自分自身(auto-merge)の check は「完全一致」で除外して自己デッドロックを防ぐ。
             #    skipped は緑扱いしない（必須 check を skip させて素通りさせる裏口を塞ぐ）。
             #    in-progress/queued(conclusion=null) も未成功扱い＝次イベントで再評価。

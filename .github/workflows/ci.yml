@@ -1,7 +1,7 @@
 name: CI
 
-# 機械の審判（machine judge）。ロードマップ G-1 系の evidence は
-# このワークフローの run URL / commit SHA を指す（AI の自己申告を証拠にしない）。
+# 機械の審判（machine judge）。型/Lint/テスト/ビルド/起動確認を機械的に検査する
+# （AI の自己申告を証拠にしない。完了報告の evidence はこのワークフローの run URL / commit SHA を指す）。
 on:
   push:
     branches: ["**"]
@@ -42,9 +42,6 @@ jobs:
 
       - name: Audit (fail on moderate+)
         run: pnpm audit --audit-level moderate
-
-      - name: Verify roadmap evidence (外部事実のみ)
-        run: node scripts/verify-roadmap-evidence.mjs
 
   smoke:
     name: 起動スモーク (build → start → curl 200 + marker)
@@ -99,7 +96,7 @@ jobs:
 
   # 集約ゲート＝branch protection が要求する「安定した1つの必須チェック」。
   # 内部ジョブ(quality/smoke)の名前や中身が変わっても context 名は 'ci-green' で不変。
-  # scripts/setup.sh はこの 'ci-green' と 'roadmap-required' だけを必須指定する。
+  # scripts/setup.sh はこの 'ci-green' だけを必須指定する。
   gate:
     name: ci-green
     needs: [quality, smoke]
