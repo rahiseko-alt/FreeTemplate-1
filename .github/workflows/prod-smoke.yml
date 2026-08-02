@@ -11,7 +11,7 @@ on:
 
 # 本番URL（Vercel production alias）。Vercel 接続後、実際の割当ドメインに合わせて更新する。
 env:
-  PROD_URL: "https://kakeibo-kun.vercel.app"
+  PROD_URL: "https://free-template-1-web.vercel.app"
 
 jobs:
   reachable:
