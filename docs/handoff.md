@@ -15,7 +15,8 @@ skill 側へ移した。あわせて skill を `setup` と `in-out` の2つに�
 - **`.claude/skills/in-out/`**（新設・`checkin-checkout` を置き換え）：`in` で引継ぎを読んで作業
   ブランチを作り、`out` で引継ぎを書いてコミット〜PR〜マージまで。
 - **`.claude/settings.json`**：`git commit --no-verify` / `git push --force` / `-f` を deny に追加。
-  既存の Stop フック（`check-uncommitted.sh`）は残した。
+  Stop フック（`check-uncommitted.sh`）は削除した（毎ターン終了時に未コミットを検出して
+  exit 2 で止めるため、摩擦が大きすぎた）。
 - **`.gitignore`**：`.venv/` `__pycache__/` を追加（Python 分岐用）。`.vercel/` `*.pem` `coverage/`
   `*.tsbuildinfo` `out/` `next-env.d.ts` は従来どおり残す。
 
@@ -28,7 +29,11 @@ skill 側へ移した。あわせて skill を `setup` と `in-out` の2つに�
    「handoff が無い **または** 未記入が残っている → `setup`」に統一した。
 3. **見本の削除手順** — `apps/web` / `packages/ui` を消す手順がどこにも無く、新案件が初手で赤に
    なる状態だった。手順2の先頭と手順A-2に追加（ユーザー判断：コピー時に消す）。
-4. **Stop フックの消失** — 提示された `settings.json` に `hooks` が無く、貼り替えると消えていた。統合した。
+4. **Stop フックの消失** — 提示された `settings.json` に `hooks` が無く、貼り替えると消えていた。
+   一度は統合したが、後述の方針転換（摩擦を減らす）でフックごと削除した。
+
+**摩擦を減らす方針に転換**：`out` から PR・マージを既定で外し（「PR 出して」と言われたときだけ）、
+毎ターン止まる Stop フックを削除した。`out` の既定はコミットと push まで。
 
 **`ci-green` の指定を現物に合わせた**：新ルール「job id を `ci-green` にし `name:` は設定しない」に
 従い、`ci.yml` の集約ゲートを job id `gate` + `name: ci-green` → job id `ci-green`（`name:` 無し）に
