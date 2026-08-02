@@ -1,29 +1,26 @@
-# dependencies
+# 依存
 node_modules/
 .pnp
 .pnp.js
+.venv/
+__pycache__/
 
-# next.js
+# ビルド成果物・キャッシュ
 .next/
 out/
-build/
 dist/
-
-# next typegen
-next-env.d.ts
-
-# production / cache
+build/
 .turbo/
 .vercel/
 *.tsbuildinfo
 coverage/
+next-env.d.ts
 
-# env
-.env
-.env.*
+# 環境変数（実際の値はコミットしない。名前と用途だけ .env.example に書く）
+.env*
 !.env.example
 
-# misc
+# その他
 .DS_Store
 *.pem
 npm-debug.log*

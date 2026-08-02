@@ -23,7 +23,8 @@
 #   ci-green を丸ごと迂回できてしまう。実地で確認済み。
 #   PR必須化は AGENTS.md 手順0-b の (A) Rulesets を手動で使うこと
 #   （Require a pull request before merging にチェック、Required approvals は 0）。
-#   ※ ci-green はワークフロー内の job 'name:' と一致させてある。ここを変えたら両方直すこと。
+#   ※ ci-green は ci.yml の集約ゲートの job id と一致させてある（'name:' は付けない）。
+#     ここを変えたら両方直すこと。
 
 set -euo pipefail
 
