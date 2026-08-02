@@ -5,38 +5,43 @@
 
 ## ①今回実施
 
-ルールを全面的に作り直した。`AGENTS.md` は毎回読む短い規律だけにし、手順は skill へ移した。
+「アプリ作れよ」の指示を受け、`setup` の手順1〜6（新規・雛形づくり）を実行した。
+ヒアリング結果：利用者＝自分だけ、利用方法＝ブラウザでURL、アプリ名＝「家計簿くん」。
+機能の中身はまだ無い（意図的。入口から出口を1回通すのが今回のスコープ）。
 
-- **`AGENTS.md`**：20KB・14節 → 約1.5KB・4節（コマンド / 実装の進め方 / 結合を増やさない / 完了の証明）。
-  冒頭1行が「『未記入』の欄が残っている間は `setup` を実行する」。
-- **`.claude/skills/setup/`**：初期設定を1回だけ行う手順（0 どこへ進むか → 1 何を作るか聞く →
-  2 雛形 → 3 渡し方の疎通 → 4 チェック → 5 引継ぎ先 → 6 未記入の埋め切り → 7 公開時のみ）。
-  末尾に「A. 既にコードがあるとき（取り込み）」。
-- **`.claude/skills/in-out/`**：`checkin-checkout` を置き換え。`out` の既定は**コミットと push まで**。
-  PR とマージは言われたときだけ。
-- **摩擦の削減**：Stop フック（`check-uncommitted.sh`）を削除。ターン終了ごとに未コミットを検出して
-  exit 2 で止めるため、`out` から PR を外した意味が無くなる。`.claude/settings.json` に残したのは
-  `git commit --no-verify` / `git push --force` / `-f` の deny のみ。
-- **`ci-green` の統一**：集約ゲートを job id `gate` + `name: ci-green` → job id `ci-green`（`name:` 無し）に。
-  チェック名は変わらないので branch protection に影響しない。`scripts/setup.sh` も追随。
-- **行数上限を実際に有効化**：`max-lines: 300` を両 eslint config に追加。322行のファイルで実際に
-  赤になることを確認してから削除した。既存の実ソースは最大221行で影響なし。
-- **見本を新ルールに適合**：`apps/web/lib/content.ts` を新設し、重複していた文言を集約。
-- **`.gitignore`**：`.venv/` `__pycache__/` を追加。
+- 同梱の見本を削除：`packages/ui`（丸ごと）、`apps/web/app/estimate/*`、
+  `apps/web/lib/estimate.ts` / `estimateForm.ts`、対応テスト、`apps/web/app/api/boom/route.ts`、
+  `apps/web/AGENTS.md`（内容はルートの `AGENTS.md` に統合）。
+- `pnpm-workspace.yaml` を `apps/*` のみに変更（`packages/ui` を消したため）。
+  `apps/web/package.json` から `@repo/ui` 依存を削除、`next.config.ts` の
+  `transpilePackages` も削除。
+- 空のトップページ（見出し「家計簿くん」＋説明文のみ）と、渡し方・チェックの動作確認用の
+  最小関数 `apps/web/lib/format.ts`（`formatMessage`）とそのテストを新設。
+  `apps/web/lib/content.ts` を「家計簿くん」向けに書き換え（文言はここに集約、2箇所以上に書かない）。
+- CI のマーカー文言を `cc-v2 monorepo` → `家計簿くん` に統一（`.github/workflows/ci.yml`・
+  `prod-smoke.yml`）。`prod-smoke.yml` の `PROD_URL` は暫定で
+  `https://kakeibo-kun.vercel.app` を置いた（Vercel 接続後、実際の割当ドメインに要更新）。
+- ルートの `package.json` の `name` を `cc-v2` → `kakeibo-kun` に、`README.md` を
+  テンプレ説明から実案件（家計簿くん）の起動手順に書き換え。
+- `AGENTS.md` の「コマンド」節を実コマンドで埋めた（未記入を解消）。
+- ローカルで `pnpm install` → `typecheck` / `lint` / `test` / `build` /
+  `audit --audit-level moderate` を全て緑で確認。さらに `next start` を実際に起動し、
+  トップページのマーカー「家計簿くん」と `/api/health` の 200 を curl で確認済み。
 
-提示されたルール案には、そのまま入れると壊れる箇所が4つあったので直してから入れた
-（取り込み経路の欠落 / 初期設定の済判定が矛盾 / 見本の削除手順が無い / Stop フックの消失）。
-
-証拠：commit `449518c`、CI 全チェック緑（`ci-green` 含む）
-https://github.com/rahiseko-alt/FreeTemplate-1/actions/runs/30735447424
+証拠：ローカルでの上記コマンド実行結果（全て成功）。CI の run URL は次回 push 後に確定。
 
 ## ②今回トラブル
 
-Stop フックを一度「既にあるものだから」と残し、次のターンで摩擦源だと分かって削除した
-（教訓は `docs/failures.md`）。
+無し。
 
 ## ③次回やる事
 
-- PR #13 は open のまま。マージするかどうかは未定（ユーザーの指示待ち）。
-- 実際の案件で `setup` を1回通して検証する（既存コードなら手順A、新規なら手順1〜6）。
-- 公開するなら `setup` の手順7（Public 化 → Secret Protection → Ruleset の4点）。
+- **push して CI（`ci-green`）が緑になることを確認する。** 今回はまだ push していない
+  （ローカル検証まで）。
+- **Vercel 接続はユーザーがブラウザで行う必要がある**（未実施）。接続後、実際の公開URLが
+  分かったら `prod-smoke.yml` の `PROD_URL`（暫定値 `https://kakeibo-kun.vercel.app`）を
+  実URLに合わせて更新し、`prod-smoke` が緑になることを確認する。それまで `prod-smoke` は
+  赤のままで正常（本番未デプロイのため）。
+- 家計簿くんの実機能（収支の記録・一覧など）はまだ何も無い。次は「実装の進め方」に従い、
+  機能を1つ選んで入口から出口までの空通しから始める。
+- 公開設定（`setup` 手順7：Public化 → Secret Protection → Ruleset）はまだ未実施。

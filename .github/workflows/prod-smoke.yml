@@ -3,22 +3,22 @@ name: prod-smoke
 # 本番到達の外部事実チェック。
 # 実行環境(サンドボックス)は *.vercel.app への外向きが遮断されるため、
 # プロキシ外の実機である GitHub Actions に本番URLを curl させて機械判定する。
-# この run が緑＝「公開URLが 200 かつ本文に 'cc-v2 monorepo'」の evidence。
+# この run が緑＝「公開URLが 200 かつ本文に '家計簿くん'」の evidence。
 on:
   push:
     branches: ["**"]
   workflow_dispatch:
 
-# 本番URL（Vercel production alias）。プロジェクトのドメインが変わったらここを更新。
+# 本番URL（Vercel production alias）。Vercel 接続後、実際の割当ドメインに合わせて更新する。
 env:
-  PROD_URL: "https://cc-v2-web.vercel.app"
+  PROD_URL: "https://free-template-1-web.vercel.app"
 
 jobs:
   reachable:
     name: prod 200 + marker
     runs-on: ubuntu-latest
     steps:
-      - name: curl production (200 かつ 'cc-v2 monorepo')
+      - name: curl production (200 かつ '家計簿くん')
         run: |
           echo "Checking ${PROD_URL}"
           code=$(curl -sS -o body.html -w '%{http_code}' --max-time 30 "${PROD_URL}")
@@ -27,11 +27,11 @@ jobs:
             echo "FAIL: 期待 200 に対し ${code}"
             exit 1
           fi
-          if ! grep -q 'cc-v2 monorepo' body.html; then
-            echo "FAIL: 本文にマーカー 'cc-v2 monorepo' が無い"
+          if ! grep -q '家計簿くん' body.html; then
+            echo "FAIL: 本文にマーカー '家計簿くん' が無い"
             exit 1
           fi
-          echo "PROD OK: 200 かつ 'cc-v2 monorepo' を ${PROD_URL} で確認"
+          echo "PROD OK: 200 かつ '家計簿くん' を ${PROD_URL} で確認"
 
       - name: HSTS ヘッダを確認
         run: |
