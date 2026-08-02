@@ -13,7 +13,14 @@ export function RecurringSummary({ rules }: RecurringSummaryProps) {
         {DETAIL_TEXT.recurringHeading}
       </h2>
       {rules.length === 0 ? (
-        <p className="text-sm text-gray-500">{DETAIL_TEXT.recurringEmpty}</p>
+        <div>
+          <p className="text-sm text-gray-500">
+            {DETAIL_TEXT.recurringEmptyMain}
+          </p>
+          <p className="mt-1 text-xs text-gray-400">
+            {DETAIL_TEXT.recurringEmptyNote}
+          </p>
+        </div>
       ) : (
         <ul className="flex flex-col divide-y divide-gray-100">
           {rules.map((rule) => (

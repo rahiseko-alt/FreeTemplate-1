@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { BalanceBarChart } from "../components/BalanceBarChart";
+import { BalanceChart } from "../components/BalanceChart";
 import { Calendar } from "../components/Calendar";
 import { HOME_DESCRIPTION, HOME_HEADING, HOME_TEXT } from "../lib/content";
 import { formatJP, todayISO } from "../lib/date";
@@ -41,7 +41,11 @@ export default function Home() {
   }
 
   const today = todayISO();
+  const isToday = data.selectedDate === today;
   const forecast = forecastBalance(data, data.selectedDate);
+  const isShortfall = forecast < 0;
+  const displayAmount = Math.abs(forecast);
+  const current = currentBalance(data);
   const rangeStart = data.selectedDate <= today ? data.selectedDate : today;
   const rangeEnd = data.selectedDate <= today ? today : data.selectedDate;
   const series = sampledSeries(data, rangeStart, rangeEnd);
@@ -54,16 +58,14 @@ export default function Home() {
       </header>
 
       <section className="rounded-lg border border-gray-200 p-4">
-        <p className="text-xs text-gray-500">{HOME_TEXT.targetDateLabel}</p>
-        <p className="text-base font-semibold text-gray-900">
-          {formatJP(data.selectedDate)}
-        </p>
+        <p className="mb-2 text-xs text-gray-500">{HOME_TEXT.dateQuestion}</p>
         <button
           type="button"
           onClick={() => setShowCalendar((v) => !v)}
-          className="mt-2 min-h-11 rounded-md border border-gray-300 px-4 text-sm text-gray-700"
+          className="min-h-11 rounded-md border border-gray-300 px-4 text-sm font-semibold text-gray-900"
         >
-          {HOME_TEXT.changeDateButton}
+          {formatJP(data.selectedDate)}
+          {HOME_TEXT.changeDateSuffix}
         </button>
       </section>
 
@@ -76,21 +78,37 @@ export default function Home() {
       ) : null}
 
       <section className="rounded-lg border border-gray-200 p-4">
-        <p className="text-xs text-gray-500">{HOME_TEXT.forecastLabel}</p>
-        <p className="text-4xl font-semibold text-gray-900">
-          {forecast.toLocaleString("ja-JP")}
-          <span className="ml-1 text-lg font-normal text-gray-500">円</span>
+        <p className="text-sm text-gray-500">
+          {isToday
+            ? HOME_TEXT.todayCaption
+            : `${formatJP(data.selectedDate)}${HOME_TEXT.futureConnector}`}
         </p>
-        {data.selectedDate !== today ? (
-          <p className="mt-1 text-xs text-gray-500">
-            {HOME_TEXT.todayLabel}: {currentBalance(data).toLocaleString("ja-JP")}
-            円
+        <p className="text-5xl font-bold text-gray-900">
+          {displayAmount.toLocaleString("ja-JP")}
+          <span className="ml-1 text-xl font-normal text-gray-500">円</span>
+        </p>
+        <p className="text-sm text-gray-500">
+          {isToday
+            ? isShortfall
+              ? HOME_TEXT.todayShortfallCaptionSuffix
+              : HOME_TEXT.todayCaptionSuffix
+            : isShortfall
+              ? HOME_TEXT.futureShortfallCaption
+              : HOME_TEXT.futureCaption}
+        </p>
+        {!isToday ? (
+          <p className="mt-2 text-xs text-gray-400">
+            {current < 0
+              ? HOME_TEXT.currentShortfallPrefix
+              : HOME_TEXT.currentBalancePrefix}
+            {Math.abs(current).toLocaleString("ja-JP")}
+            {HOME_TEXT.currentBalanceSuffix}
           </p>
         ) : null}
       </section>
 
       <section className="rounded-lg border border-gray-200 p-4">
-        <BalanceBarChart points={series} highlightDate={data.selectedDate} />
+        <BalanceChart points={series} highlightDate={data.selectedDate} />
       </section>
 
       <Link
