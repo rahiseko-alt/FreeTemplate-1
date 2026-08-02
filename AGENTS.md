@@ -4,16 +4,18 @@
 
 ## コマンド
 
-- 開発サーバ: 未記入
-- テスト（全件 / 1件だけ）: 未記入
-- lint / 型チェック: 未記入
-- 必須の環境変数（名前だけ。値は書かない）: 未記入
-- 共通の文言・値の置き場所: 未記入
+- 開発サーバ: `pnpm --filter web dev`（初回のみ `pnpm install`）
+- テスト（全件 / 1件だけ）: `pnpm --filter web test` / `pnpm --filter web test -- tests/format.test.ts`
+- lint / 型チェック: `pnpm --filter web lint` / `pnpm --filter web typecheck`
+- 必須の環境変数（名前だけ。値は書かない）: なし（`apps/web/.env.example` 参照）
+- 共通の文言・値の置き場所: `apps/web/lib/content.ts`
+
+補足（CI が回すもの）: ビルドは `pnpm -r build`、依存監査は `pnpm audit --audit-level moderate`。
 
 ## 実装の進め方
 
 - 機能ごとに、中身を書く前に入口から出口までを1回通す。途中の各段は空の返事でよい。通ってから中身を実装する。
-- 規約: 未記入（書き方が2通り以上あって迷ったら、採用した方をこの欄に1行足す）
+- 規約: なし
 
 ## 結合を増やさない
 
