@@ -43,6 +43,9 @@ export default function Home() {
   const today = todayISO();
   const isToday = data.selectedDate === today;
   const forecast = forecastBalance(data, data.selectedDate);
+  const isShortfall = forecast < 0;
+  const displayAmount = Math.abs(forecast);
+  const current = currentBalance(data);
   const rangeStart = data.selectedDate <= today ? data.selectedDate : today;
   const rangeEnd = data.selectedDate <= today ? today : data.selectedDate;
   const series = sampledSeries(data, rangeStart, rangeEnd);
@@ -81,16 +84,24 @@ export default function Home() {
             : `${formatJP(data.selectedDate)}${HOME_TEXT.futureConnector}`}
         </p>
         <p className="text-5xl font-bold text-gray-900">
-          {forecast.toLocaleString("ja-JP")}
+          {displayAmount.toLocaleString("ja-JP")}
           <span className="ml-1 text-xl font-normal text-gray-500">円</span>
         </p>
         <p className="text-sm text-gray-500">
-          {isToday ? HOME_TEXT.todayCaptionSuffix : HOME_TEXT.futureCaption}
+          {isToday
+            ? isShortfall
+              ? HOME_TEXT.todayShortfallCaptionSuffix
+              : HOME_TEXT.todayCaptionSuffix
+            : isShortfall
+              ? HOME_TEXT.futureShortfallCaption
+              : HOME_TEXT.futureCaption}
         </p>
         {!isToday ? (
           <p className="mt-2 text-xs text-gray-400">
-            {HOME_TEXT.currentBalancePrefix}
-            {currentBalance(data).toLocaleString("ja-JP")}
+            {current < 0
+              ? HOME_TEXT.currentShortfallPrefix
+              : HOME_TEXT.currentBalancePrefix}
+            {Math.abs(current).toLocaleString("ja-JP")}
             {HOME_TEXT.currentBalanceSuffix}
           </p>
         ) : null}

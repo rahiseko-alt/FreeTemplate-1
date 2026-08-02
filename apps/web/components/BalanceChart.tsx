@@ -24,6 +24,7 @@ export function BalanceChart({ points, highlightDate }: BalanceChartProps) {
   if (points.length === 0) return null;
 
   const values = points.map((p) => p.balance);
+  const hasNegative = values.some((v) => v < 0);
   const min = Math.min(0, ...values);
   const max = Math.max(0, ...values);
   const span = max - min || 1;
@@ -46,6 +47,11 @@ export function BalanceChart({ points, highlightDate }: BalanceChartProps) {
   const highlight = highlightIndex >= 0 ? points[highlightIndex] : undefined;
   const firstPoint = points[0] as DailyBalancePoint;
   const lastPoint = points[points.length - 1] as DailyBalancePoint;
+
+  // マイナスが無いときは単色にする（境界ぴったりの値がグラデーションの
+  // 継ぎ目と重なって赤く見えてしまう不具合を避けるため）。
+  const lineStroke = hasNegative ? "url(#balance-gradient)" : POSITIVE;
+  const areaFill = hasNegative ? "url(#balance-area-gradient)" : POSITIVE;
 
   return (
     <div>
@@ -92,11 +98,16 @@ export function BalanceChart({ points, highlightDate }: BalanceChartProps) {
           0円
         </text>
 
-        <path d={areaPath} fill="url(#balance-area-gradient)" stroke="none" />
+        <path
+          d={areaPath}
+          fill={areaFill}
+          fillOpacity={hasNegative ? undefined : 0.12}
+          stroke="none"
+        />
         <path
           d={linePath}
           fill="none"
-          stroke="url(#balance-gradient)"
+          stroke={lineStroke}
           strokeWidth={2}
           strokeLinejoin="round"
           strokeLinecap="round"
@@ -141,7 +152,9 @@ export function BalanceChart({ points, highlightDate }: BalanceChartProps) {
 
       {highlight ? (
         <p className="mt-1 text-center text-xs font-semibold text-gray-900">
-          {formatShort(highlight.date)}：{highlight.balance.toLocaleString("ja-JP")}円
+          {formatShort(highlight.date)}：
+          {Math.abs(highlight.balance).toLocaleString("ja-JP")}円
+          {highlight.balance < 0 ? HOME_TEXT.chartShortfallSuffix : ""}
         </p>
       ) : null}
     </div>

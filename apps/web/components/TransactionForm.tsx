@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 
+import { Calendar } from "./Calendar";
 import { DETAIL_TEXT } from "../lib/content";
-import { todayISO } from "../lib/date";
+import { formatJP, todayISO } from "../lib/date";
 import type { Transaction, TransactionType } from "../lib/types";
 
 interface TransactionFormProps {
@@ -12,14 +13,19 @@ interface TransactionFormProps {
 
 export function TransactionForm({ onAdd }: TransactionFormProps) {
   const [date, setDate] = useState(todayISO());
+  const [showCalendar, setShowCalendar] = useState(false);
   const [type, setType] = useState<TransactionType>("expense");
   const [amount, setAmount] = useState("");
   const [memo, setMemo] = useState("");
+  const [showAmountError, setShowAmountError] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const amountNumber = Number(amount);
-    if (!Number.isFinite(amountNumber) || amountNumber <= 0) return;
+    if (!Number.isFinite(amountNumber) || amountNumber <= 0) {
+      setShowAmountError(true);
+      return;
+    }
 
     onAdd({
       id: crypto.randomUUID(),
@@ -30,6 +36,7 @@ export function TransactionForm({ onAdd }: TransactionFormProps) {
     });
     setAmount("");
     setMemo("");
+    setShowAmountError(false);
   }
 
   return (
@@ -41,15 +48,24 @@ export function TransactionForm({ onAdd }: TransactionFormProps) {
         {DETAIL_TEXT.entryFormHeading}
       </h2>
 
-      <label className="flex flex-col gap-1 text-sm text-gray-700">
+      <div className="flex flex-col gap-1 text-sm text-gray-700">
         {DETAIL_TEXT.dateLabel}
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="min-h-11 rounded-md border border-gray-300 px-3"
-        />
-      </label>
+        <button
+          type="button"
+          onClick={() => setShowCalendar((v) => !v)}
+          className="min-h-11 rounded-md border border-gray-300 px-3 text-left"
+        >
+          {formatJP(date)}
+          {DETAIL_TEXT.changeDateSuffix}
+        </button>
+        {showCalendar ? (
+          <Calendar
+            selected={date}
+            onSelect={setDate}
+            onClose={() => setShowCalendar(false)}
+          />
+        ) : null}
+      </div>
 
       <div className="flex gap-4 text-sm text-gray-700">
         <label className="flex items-center gap-2">
@@ -77,9 +93,17 @@ export function TransactionForm({ onAdd }: TransactionFormProps) {
           inputMode="numeric"
           min={1}
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={(e) => {
+            setAmount(e.target.value);
+            setShowAmountError(false);
+          }}
           className="min-h-11 rounded-md border border-gray-300 px-3"
         />
+        {showAmountError ? (
+          <span className="text-xs text-red-600">
+            {DETAIL_TEXT.amountError}
+          </span>
+        ) : null}
       </label>
 
       <label className="flex flex-col gap-1 text-sm text-gray-700">

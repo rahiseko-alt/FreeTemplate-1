@@ -19,14 +19,19 @@ export function FixedDailyExpenseSection({
 }: FixedDailyExpenseSectionProps) {
   const [amount, setAmount] = useState("");
   const [memo, setMemo] = useState("");
+  const [showAmountError, setShowAmountError] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const amountNumber = Number(amount);
-    if (!Number.isFinite(amountNumber) || amountNumber <= 0) return;
+    if (!Number.isFinite(amountNumber) || amountNumber <= 0) {
+      setShowAmountError(true);
+      return;
+    }
     onAdd({ id: crypto.randomUUID(), amount: amountNumber, memo });
     setAmount("");
     setMemo("");
+    setShowAmountError(false);
   }
 
   return (
@@ -71,9 +76,17 @@ export function FixedDailyExpenseSection({
             inputMode="numeric"
             min={1}
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={(e) => {
+              setAmount(e.target.value);
+              setShowAmountError(false);
+            }}
             className="min-h-11 rounded-md border border-gray-300 px-3"
           />
+          {showAmountError ? (
+            <span className="text-xs text-red-600">
+              {DETAIL_TEXT.amountError}
+            </span>
+          ) : null}
         </label>
         <label className="flex flex-col gap-1 text-sm text-gray-700">
           {DETAIL_TEXT.memoLabel}
