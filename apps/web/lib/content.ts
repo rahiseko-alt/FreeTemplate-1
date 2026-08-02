@@ -15,20 +15,19 @@ export const SITE = {
 export const HOME_HEADING = "家計簿くん";
 
 /** トップページの説明文。 */
-export const HOME_DESCRIPTION = "任意の日付の残高予測";
-
-export const NAV = {
-  home: "ホーム",
-  detail: "詳細",
-} as const;
+export const HOME_DESCRIPTION = "この先いつ、いくら残るかが分かります";
 
 export const HOME_TEXT = {
-  forecastLabel: "予測残高",
-  targetDateLabel: "対象日",
-  changeDateButton: "日付を変更する",
-  todayLabel: "今日の残高",
-  chartHeading: "財政状況",
-  detailLink: "詳細を見る",
+  dateQuestion: "いつのお金が知りたい？",
+  changeDateSuffix: "を変える",
+  futureConnector: "には",
+  futureCaption: "残っていそうです",
+  todayCaption: "今は",
+  todayCaptionSuffix: "残っています",
+  currentBalancePrefix: "今の残高：",
+  currentBalanceSuffix: "円",
+  chartHeading: "残高の動き",
+  detailLink: "くわしく見る",
 } as const;
 
 export const CALENDAR_TEXT = {
@@ -39,27 +38,28 @@ export const CALENDAR_TEXT = {
 } as const;
 
 export const DETAIL_TEXT = {
-  heading: "詳細",
-  expenseListHeading: "支出（日毎）",
-  incomeListHeading: "収入（日毎）",
-  emptyExpense: "支出の記録はまだありません",
-  emptyIncome: "収入の記録はまだありません",
-  entryFormHeading: "手入力",
+  heading: "くわしく",
+  expenseListHeading: "使ったお金（日ごと）",
+  incomeListHeading: "もらったお金（日ごと）",
+  emptyExpense: "まだ記録がありません",
+  emptyIncome: "まだ記録がありません",
+  entryFormHeading: "記録する",
   dateLabel: "日付",
-  typeLabel: "種別",
-  typeIncome: "収入",
-  typeExpense: "支出",
-  amountLabel: "金額",
+  typeLabel: "種類",
+  typeIncome: "もらったお金",
+  typeExpense: "使ったお金",
+  amountLabel: "いくら",
   memoLabel: "メモ",
-  addButton: "追加する",
-  deleteButton: "削除",
-  fixedDailyHeading: "毎日の固定支出",
-  fixedDailyEmpty: "毎日の固定支出はまだありません",
-  fixedDailyAmountLabel: "金額（1日あたり）",
-  fixedDailyAddButton: "固定支出を追加する",
-  recurringHeading: "毎月の定額（自動検出）",
-  recurringEmpty: "まだ検出された定額の収支はありません（同じ日付・同じ金額の入力が2ヶ月分たまると表示されます）",
-  recurringExpenseLabel: "支出",
-  recurringIncomeLabel: "収入",
-  backLink: "ホームに戻る",
+  addButton: "記録する",
+  deleteButton: "けす",
+  fixedDailyHeading: "毎日きまって使うお金",
+  fixedDailyEmpty: "まだ記録がありません",
+  fixedDailyAmountLabel: "1日あたりの金額",
+  fixedDailyAddButton: "追加する",
+  recurringHeading: "毎月きまって出入りするお金",
+  recurringEmpty:
+    "まだありません（同じ日・同じ金額の記録が2ヶ月分たまると、ここに自動で出ます）",
+  recurringExpenseLabel: "使ったお金",
+  recurringIncomeLabel: "もらったお金",
+  backLink: "もどる",
 } as const;
