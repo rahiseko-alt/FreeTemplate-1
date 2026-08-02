@@ -1,7 +1,8 @@
 # apps/web の AGENTS.md（記入済みの実例）
 
-ルート `AGENTS.md` の普遍ルールを継承しつつ、この案件で確定したスタックを宣言する。
-これは「初期化フロー（ヒアリング→リサーチ→提案→承認→設定）」を一度通した結果の実例。
+ルートの `AGENTS.md` を継承しつつ、この案件で確定したスタックを宣言する。
+これは `setup` の「B. ゼロから始める」（ヒアリング→リサーチ→提案→承認→設定）を
+一度通した結果の実例。
 
 ## 概要
 
@@ -22,11 +23,13 @@ Next.js（App Router）の Web アプリ。共有 UI は `@repo/ui`（`packages/
 
 ## コマンド
 
-- セットアップ: `pnpm install`
-- 開発: `pnpm --filter web dev`
-- ビルド: `pnpm --filter web build`
-- 型チェック: `pnpm --filter web typecheck`
-- Lint: `pnpm --filter web lint`
+- 開発サーバ: `pnpm --filter web dev`（初回のみ `pnpm install`）
+- テスト（全件 / 1件だけ）: `pnpm --filter web test` / `pnpm --filter web test -- tests/estimate.test.ts`
+- lint / 型チェック: `pnpm --filter web lint` / `pnpm --filter web typecheck`
+- 必須の環境変数（名前だけ。値は書かない）: なし（`apps/web/.env.example` 参照）
+- 共通の文言・値の置き場所: `apps/web/lib/content.ts`（画面に出る文言・サイト共通メタ）
+
+補足（CI が回すもの）: ビルドは `pnpm --filter web build`、依存監査は `pnpm audit --audit-level moderate`。
 
 ## 運用・非機能（確定）
 

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+import { SITE } from "../lib/content";
+
 export const metadata: Metadata = {
-  title: "cc-v2",
-  description: "pnpm monorepo (apps/web + packages/ui)",
+  title: SITE.title,
+  description: SITE.description,
 };
 
 export default function RootLayout({
