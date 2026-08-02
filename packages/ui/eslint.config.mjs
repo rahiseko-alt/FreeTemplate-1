@@ -5,4 +5,13 @@ import tseslint from "typescript-eslint";
 export default tseslint.config(
   { ignores: ["node_modules/**", "dist/**"] },
   ...tseslint.configs.recommended,
+  {
+    // 行数上限は既定では無効なので明示的に入れる（AGENTS.md「結合を増やさない」の最終段）。
+    rules: {
+      "max-lines": [
+        "error",
+        { max: 300, skipBlankLines: true, skipComments: true },
+      ],
+    },
+  },
 );

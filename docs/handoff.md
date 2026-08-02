@@ -5,41 +5,50 @@
 
 ## ①今回実施
 
-`AGENTS.md` を「毎セッション必ず読む短い規律」だけに絞り込み、手順は `setup` スキルへ移した。
-20KB・14節 → 約1.5KB・4節。
+`AGENTS.md` を4節（コマンド / 実装の進め方 / 結合を増やさない / 完了の証明）に絞り、手順を
+skill 側へ移した。あわせて skill を `setup` と `in-out` の2つに整理した。
 
-- **`AGENTS.md`（全面差し替え）**：「コマンド」（開発サーバ / テスト全件・1件だけ / lint・型チェック /
-  必須の環境変数（名前だけ）/ 共通の文言・値の置き場所）、「実装の進め方」（入口から出口まで1回通してから
-  中身）、「結合を増やさない」（4条＋判定基準）、「完了の証明」の4節のみ。冒頭1行が
-  「『未記入』の欄が残っている間は `setup` を実行する」。
-- **`.claude/skills/setup/SKILL.md`（新設）**：旧 `AGENTS.md` の手順を移設。
-  0. プロダクトの所在確認（`git branch -a`／同梱サンプルはコードに数えない／3分岐）
-  A. 取り込み7手順（無確認実行＋事後報告。`ci-green` 維持、チェックを削らない、
-     同梱サンプル削除のガードはそのまま維持）
-  B. ゼロから始める（鉄板構成＋非エンジニア向けFAQ5問）
-  C. 機械強制の有効化（Rulesets のハマりどころ4点、Secret Protection）
-  ＋「確認せずに進める／必ず確認する」
-- **宙吊り参照の解消**：`checkin-checkout/SKILL.md`（handoff の入口を `docs/handoff.md` に固定。
-  独自記録がある場合は参照先1行を辿る方式へ）、`presets/_TEMPLATE.md`（新しい欄の形に合わせて簡素化）、
-  `README.md`、`apps/web/AGENTS.md`。
-- **サンプルを新ルールに適合**：`apps/web` に「共通の文言・値の置き場所」が存在しなかったため
-  `apps/web/lib/content.ts` を新設し、`page.tsx` / `layout.tsx` / `home.test.tsx` の重複文言を集約した
-  （「結合を増やさない」1 の実例になる）。CI スモークの grep はアプリを読まずに外から確かめるための
-  意図的な二重化として残し、その旨を `content.ts` に明記。
+- **`AGENTS.md`**：20KB・14節 → 約1.5KB・4節。冒頭1行が「『未記入』の欄が残っている間は `setup` を実行する」。
+- **`.claude/skills/setup/`**：初期設定を1回だけ行う。手順0（どこへ進むか）→ 1 何を作るか聞く →
+  2 雛形 → 3 渡し方の疎通 → 4 チェック → 5 引継ぎ先 → 6 未記入の埋め切り → 7 公開時のみ。
+  末尾に「A. 既にコードがあるとき（取り込み）」。
+- **`.claude/skills/in-out/`**（新設・`checkin-checkout` を置き換え）：`in` で引継ぎを読んで作業
+  ブランチを作り、`out` で引継ぎを書いてコミット〜PR〜マージまで。
+- **`.claude/settings.json`**：`git commit --no-verify` / `git push --force` / `-f` を deny に追加。
+  既存の Stop フック（`check-uncommitted.sh`）は残した。
+- **`.gitignore`**：`.venv/` `__pycache__/` を追加（Python 分岐用）。`.vercel/` `*.pem` `coverage/`
+  `*.tsbuildinfo` `out/` `next-env.d.ts` は従来どおり残す。
 
-検証：typecheck / lint / test（36 tests passed）/ build / audit すべて緑。起動スモークもローカルで
-HTTP 200＋マーカー `cc-v2 monorepo` を確認。
+初稿に対して指摘した不都合のうち、4件を直した上で入れた：
+
+1. **取り込み経路の復活** — 初稿は「まっさらから作る」手順しか無く、既存コードの上に雛形を
+   かぶせる状態だった（`docs/failures.md` 2026-08-01 と同じ失敗）。手順0の分岐と手順Aを足した。
+2. **「初期設定が終わった」の目印の矛盾** — 「AGENTS.md の未記入」と「`docs/handoff.md` の存在」が
+   逆の答えを出していた（このリポジトリ自身が両方成立）。`in` の判定を
+   「handoff が無い **または** 未記入が残っている → `setup`」に統一した。
+3. **見本の削除手順** — `apps/web` / `packages/ui` を消す手順がどこにも無く、新案件が初手で赤に
+   なる状態だった。手順2の先頭と手順A-2に追加（ユーザー判断：コピー時に消す）。
+4. **Stop フックの消失** — 提示された `settings.json` に `hooks` が無く、貼り替えると消えていた。統合した。
+
+**`ci-green` の指定を現物に合わせた**：新ルール「job id を `ci-green` にし `name:` は設定しない」に
+従い、`ci.yml` の集約ゲートを job id `gate` + `name: ci-green` → job id `ci-green`（`name:` 無し）に
+変更。チェック名は `ci-green` のまま変わらないので branch protection は影響を受けない。
+`scripts/setup.sh` のコメントも追随。
+
+**行数上限を実際に有効化した**：`max-lines: 300`（空行・コメント除外）を両 eslint config に追加。
+新ルールの「わざと超えるファイルを作って赤を確認する」も実行済み（322行のファイルで
+`File has too many lines (322). Maximum allowed is 300` を確認し、削除）。既存の実ソースは
+最大221行（`apps/web/lib/estimate.ts`）なので影響なし。
+
+検証：typecheck / lint / test（36 passed）/ build すべて緑。
 
 ## ②今回トラブル
 
-`apps/web/AGENTS.md` の「共通の文言・値の置き場所」に、実在を確かめずに `lib/estimate.ts` と
-書いた。実際は計算エンジンで文言は持っておらず、置き場所自体が存在しなかった。
-`content.ts` を新設して解消（教訓は `docs/failures.md`）。
+無し。初稿の不都合は入れる前に洗い出し、4件とも修正済み。
 
 ## ③次回やる事
 
-- 新しい `AGENTS.md` + `setup` を、実際の持ち込み案件で1回通して検証する
-  （`setup` の A. 取り込みがユーザーへの問い返し無しで完走し、「コマンド」欄の5項目が
-  実在のコードから埋まるか。`ci-green` が維持されるか）。
-- このリポジトリの `main` に branch protection（`ci-green` 必須）と Secret Protection が
-  適用済みかは未確認。未適用なら `setup` の「C. 機械強制の有効化」に従って設定する。
+- 実際の持ち込み案件で `setup` の手順A（取り込み）を1回通して検証する。
+- 新規案件で手順1〜6を通し、手順3（渡し方の疎通）と手順4（行数上限の赤確認）が
+  ユーザーへの問い返し無しで完走するか見る。
+- 公開するなら `setup` の手順7（Public 化 → Secret Protection → Ruleset の4点）。

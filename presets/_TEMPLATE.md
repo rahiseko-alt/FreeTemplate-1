@@ -9,9 +9,9 @@
 **ここには「そのディレクトリ固有の値」だけ**書く。
 
 > 欄の埋め方（実在のコードから読み取る／該当が無い欄は「なし」）は `setup` に従う。
-> 既にコードがあれば `setup` の「A. 取り込み」、まだ無ければ「B. ゼロから始める」に入る。
-> 新しいリポジトリでの branch protection / Secret Protection の初回設定は `setup` の
-> 「C. 機械強制の有効化」（要点：リポジトリを Public にし、`ci-green` を main の必須チェックにする）。
+> 既にコードがあれば `setup` の「A. 既にコードがあるとき（取り込み）」、まだ無ければ手順1から入る。
+> 公開するときの branch protection / Secret Protection は `setup` の手順7
+> （要点：リポジトリを Public にし、`ci-green` を main の必須チェックにする）。
 > エンジニアは `bash scripts/setup.sh` でも可。
 
 ## 概要

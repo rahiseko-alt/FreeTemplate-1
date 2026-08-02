@@ -97,8 +97,9 @@ jobs:
   # 集約ゲート＝branch protection が要求する「安定した1つの必須チェック」。
   # 内部ジョブ(quality/smoke)の名前や中身が変わっても context 名は 'ci-green' で不変。
   # scripts/setup.sh はこの 'ci-green' だけを必須指定する。
-  gate:
-    name: ci-green
+  # job id をそのまま context 名にする（'name:' は設定しない。両方あるとどちらが必須チェック名か
+  # 分からなくなるため）。ここを変えると必須チェックが永久に待ち状態になり全 PR がマージ不能になる。
+  ci-green:
     needs: [quality, smoke]
     if: always()
     runs-on: ubuntu-latest
