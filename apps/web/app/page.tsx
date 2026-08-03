@@ -21,9 +21,22 @@ import type { AppData, FixedDailyExpense, Transaction } from "../lib/types";
 
 const MAX_CHART_POINTS = 45;
 
+type RecordTab = "expense" | "income" | "fixed";
+
+const RECORD_TABS: Array<{
+  key: RecordTab;
+  label: string;
+  activeClass: string;
+}> = [
+  { key: "expense", label: DETAIL_TEXT.expenseListHeading, activeClass: "text-red-600" },
+  { key: "income", label: DETAIL_TEXT.incomeListHeading, activeClass: "text-blue-600" },
+  { key: "fixed", label: DETAIL_TEXT.fixedTabLabel, activeClass: "text-gray-900" },
+];
+
 export default function Home() {
   const [data, setData] = useState<AppData | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [activeTab, setActiveTab] = useState<RecordTab>("expense");
 
   useEffect(() => {
     setData(loadAppData());
@@ -88,27 +101,33 @@ export default function Home() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-3 bg-white p-4">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-6 bg-white px-4 py-6">
       <header>
-        <h1 className="text-xl font-bold text-gray-900">{HOME_HEADING}</h1>
-        <p className="text-sm text-gray-500">{HOME_DESCRIPTION}</p>
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+          {HOME_HEADING}
+        </h1>
+        <p className="mt-1 text-sm text-gray-500">{HOME_DESCRIPTION}</p>
       </header>
 
-      <section className="rounded-lg border border-gray-200 p-3">
-        <h2 className="mb-1 text-sm font-semibold text-gray-900">
+      <section className="rounded-2xl border border-gray-200 bg-gradient-to-b from-blue-50/70 to-white p-5 shadow-sm">
+        <h2 className="text-sm font-semibold text-blue-700">
           {HOME_TEXT.forecastHeadingPrefix}
           {formatJP(data.selectedDate)}
         </h2>
 
-        <p className="mb-1 text-xs text-gray-500">{HOME_TEXT.dateQuestion}</p>
-        <button
-          type="button"
-          onClick={() => setShowCalendar((v) => !v)}
-          className="min-h-11 rounded-md border border-gray-300 px-4 text-sm font-semibold text-gray-900"
-        >
-          {formatJP(data.selectedDate)}
-          {HOME_TEXT.changeDateSuffix}
-        </button>
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <span className="text-xs font-medium text-gray-500">
+            {HOME_TEXT.dateLabel}
+          </span>
+          <button
+            type="button"
+            onClick={() => setShowCalendar((v) => !v)}
+            className="min-h-11 rounded-lg border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-900"
+          >
+            {formatJP(data.selectedDate)}
+            {HOME_TEXT.changeDateSuffix}
+          </button>
+        </div>
 
         {showCalendar ? (
           <div className="mt-2">
@@ -120,62 +139,92 @@ export default function Home() {
           </div>
         ) : null}
 
-        <p className="mt-2 text-sm text-gray-500">
-          {isToday
-            ? HOME_TEXT.todayCaption
-            : `${formatJP(data.selectedDate)}${HOME_TEXT.futureConnector}`}
-        </p>
-        <p className="text-5xl font-bold text-gray-900">
-          {displayAmount.toLocaleString("ja-JP")}
-          <span className="ml-1 text-xl font-normal text-gray-500">円</span>
-        </p>
-        <p className="text-sm text-gray-500">
-          {isToday
-            ? isShortfall
-              ? HOME_TEXT.todayShortfallCaptionSuffix
-              : HOME_TEXT.todayCaptionSuffix
-            : isShortfall
-              ? HOME_TEXT.futureShortfallCaption
-              : HOME_TEXT.futureCaption}
-        </p>
-        {!isToday ? (
-          <p className="mt-1 text-xs text-gray-400">
-            {current < 0
-              ? HOME_TEXT.currentShortfallPrefix
-              : HOME_TEXT.currentBalancePrefix}
-            {Math.abs(current).toLocaleString("ja-JP")}
-            {HOME_TEXT.currentBalanceSuffix}
+        <div className="mt-5">
+          <p className="text-xs font-medium text-gray-500">
+            {isToday ? HOME_TEXT.balanceLabelToday : HOME_TEXT.balanceLabelFuture}
           </p>
-        ) : null}
-      </section>
+          <p className="text-6xl font-bold tracking-tight text-gray-900">
+            {displayAmount.toLocaleString("ja-JP")}
+            <span className="ml-1 text-xl font-normal text-gray-500">円</span>
+          </p>
+          {isShortfall ? (
+            <p className="mt-1 text-sm font-semibold text-red-600">
+              {isToday
+                ? HOME_TEXT.shortfallNoteToday
+                : HOME_TEXT.shortfallNoteFuture}
+            </p>
+          ) : null}
+          {!isToday ? (
+            <p className="mt-1 text-xs text-gray-400">
+              {current < 0
+                ? HOME_TEXT.currentShortfallPrefix
+                : HOME_TEXT.currentBalancePrefix}
+              {Math.abs(current).toLocaleString("ja-JP")}
+              {HOME_TEXT.currentBalanceSuffix}
+            </p>
+          ) : null}
+        </div>
 
-      <section className="rounded-lg border border-gray-200 p-3">
-        <BalanceChart points={series} highlightDate={data.selectedDate} />
+        <div className="mt-5 border-t border-gray-100 pt-4">
+          <BalanceChart points={series} highlightDate={data.selectedDate} />
+        </div>
       </section>
 
       <TransactionForm onAdd={addTransaction} />
 
-      <TransactionList
-        heading={DETAIL_TEXT.expenseListHeading}
-        emptyMessage={DETAIL_TEXT.emptyExpense}
-        transactions={expenses}
-        onDelete={deleteTransaction}
-      />
+      <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div role="tablist" className="grid grid-cols-3 gap-1 border-b border-gray-200 bg-gray-50 p-1">
+          {RECORD_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`min-h-11 rounded-lg text-sm font-semibold transition-colors ${
+                activeTab === tab.key
+                  ? `bg-white shadow-sm ${tab.activeClass}`
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-      <TransactionList
-        heading={DETAIL_TEXT.incomeListHeading}
-        emptyMessage={DETAIL_TEXT.emptyIncome}
-        transactions={incomes}
-        onDelete={deleteTransaction}
-      />
+        <div className="p-4">
+          {activeTab === "expense" ? (
+            <TransactionList
+              emptyMessage={DETAIL_TEXT.emptyExpense}
+              transactions={expenses}
+              onDelete={deleteTransaction}
+              tone="expense"
+            />
+          ) : null}
 
-      <FixedDailyExpenseSection
-        items={data.fixedDailyExpenses}
-        onAdd={addFixedDaily}
-        onDelete={deleteFixedDaily}
-      />
+          {activeTab === "income" ? (
+            <TransactionList
+              emptyMessage={DETAIL_TEXT.emptyIncome}
+              transactions={incomes}
+              onDelete={deleteTransaction}
+              tone="income"
+            />
+          ) : null}
 
-      <RecurringSummary rules={recurring} />
+          {activeTab === "fixed" ? (
+            <div className="flex flex-col gap-5">
+              <FixedDailyExpenseSection
+                items={data.fixedDailyExpenses}
+                onAdd={addFixedDaily}
+                onDelete={deleteFixedDaily}
+              />
+              <div className="border-t border-gray-100 pt-5">
+                <RecurringSummary rules={recurring} />
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </section>
     </main>
   );
 }

@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { Calendar } from "./Calendar";
-import { DETAIL_TEXT } from "../lib/content";
+import { DETAIL_TEXT, HOME_TEXT } from "../lib/content";
 import { formatJP, todayISO } from "../lib/date";
 import type { Transaction, TransactionType } from "../lib/types";
 
@@ -39,54 +39,43 @@ export function TransactionForm({ onAdd }: TransactionFormProps) {
     setShowAmountError(false);
   }
 
+  const accent = type === "expense" ? "red" : "blue";
+
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-2 rounded-lg border border-gray-200 p-3"
+      className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-gray-50 p-4 shadow-sm"
     >
       <h2 className="text-sm font-semibold text-gray-900">
         {DETAIL_TEXT.entryFormHeading}
       </h2>
 
-      <div className="flex flex-col gap-1 text-sm text-gray-700">
-        {DETAIL_TEXT.dateLabel}
-        <button
-          type="button"
-          onClick={() => setShowCalendar((v) => !v)}
-          className="min-h-11 rounded-md border border-gray-300 px-3 text-left"
-        >
-          {formatJP(date)}
-          {DETAIL_TEXT.changeDateSuffix}
-        </button>
-        {showCalendar ? (
-          <Calendar
-            selected={date}
-            onSelect={setDate}
-            onClose={() => setShowCalendar(false)}
-          />
-        ) : null}
-      </div>
-
-      <div className="flex gap-3 text-sm text-gray-700">
-        <label className="flex items-center gap-2">
+      <div className="grid grid-cols-2 gap-2">
+        <label className="block">
           <input
             type="radio"
+            className="peer sr-only"
             checked={type === "expense"}
             onChange={() => setType("expense")}
           />
-          {DETAIL_TEXT.typeExpense}
+          <span className="flex min-h-11 items-center justify-center rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 peer-checked:border-red-600 peer-checked:bg-red-600 peer-checked:text-white">
+            {DETAIL_TEXT.typeExpense}
+          </span>
         </label>
-        <label className="flex items-center gap-2">
+        <label className="block">
           <input
             type="radio"
+            className="peer sr-only"
             checked={type === "income"}
             onChange={() => setType("income")}
           />
-          {DETAIL_TEXT.typeIncome}
+          <span className="flex min-h-11 items-center justify-center rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 peer-checked:border-blue-600 peer-checked:bg-blue-600 peer-checked:text-white">
+            {DETAIL_TEXT.typeIncome}
+          </span>
         </label>
       </div>
 
-      <label className="flex flex-col gap-1 text-sm text-gray-700">
+      <label className="flex flex-col gap-1 text-sm font-medium text-gray-600">
         {DETAIL_TEXT.amountLabel}
         <input
           type="number"
@@ -97,28 +86,49 @@ export function TransactionForm({ onAdd }: TransactionFormProps) {
             setAmount(e.target.value);
             setShowAmountError(false);
           }}
-          className="min-h-11 rounded-md border border-gray-300 px-3"
+          className="min-h-11 rounded-lg border border-gray-300 bg-white px-3 text-lg font-semibold text-gray-900"
         />
         {showAmountError ? (
-          <span className="text-xs text-red-600">
+          <span className="text-xs font-normal text-red-600">
             {DETAIL_TEXT.amountError}
           </span>
         ) : null}
       </label>
 
-      <label className="flex flex-col gap-1 text-sm text-gray-700">
+      <label className="flex flex-col gap-1 text-sm font-medium text-gray-600">
+        {DETAIL_TEXT.dateLabel}
+        <button
+          type="button"
+          onClick={() => setShowCalendar((v) => !v)}
+          className="min-h-11 rounded-lg border border-gray-300 bg-white px-3 text-left text-sm font-normal text-gray-900"
+        >
+          {formatJP(date)}
+          {HOME_TEXT.changeDateSuffix}
+        </button>
+        {showCalendar ? (
+          <Calendar
+            selected={date}
+            onSelect={setDate}
+            onClose={() => setShowCalendar(false)}
+          />
+        ) : null}
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm font-medium text-gray-600">
         {DETAIL_TEXT.memoLabel}
         <input
           type="text"
           value={memo}
           onChange={(e) => setMemo(e.target.value)}
-          className="min-h-11 rounded-md border border-gray-300 px-3"
+          className="min-h-11 rounded-lg border border-gray-300 bg-white px-3 font-normal text-gray-900"
         />
       </label>
 
       <button
         type="submit"
-        className="min-h-11 rounded-md bg-blue-600 text-sm font-semibold text-white"
+        className={`min-h-11 rounded-lg text-sm font-semibold text-white ${
+          accent === "red" ? "bg-red-600" : "bg-blue-600"
+        }`}
       >
         {DETAIL_TEXT.addButton}
       </button>

@@ -40,30 +40,30 @@ export function Calendar({ selected, onSelect, onClose }: CalendarProps) {
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
-      <div className="mb-2 flex items-center justify-between">
+    <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-md">
+      <div className="mb-3 flex items-center justify-between">
         <button
           type="button"
           onClick={() => changeMonth(-1)}
           aria-label={CALENDAR_TEXT.prevMonth}
-          className="min-h-11 min-w-11 rounded-md text-gray-600 hover:bg-gray-100"
+          className="min-h-11 min-w-11 rounded-md text-lg text-gray-500 hover:bg-gray-100"
         >
           ‹
         </button>
-        <span className="font-semibold text-gray-900">
+        <span className="text-sm font-semibold text-gray-900">
           {year}年{month + 1}月
         </span>
         <button
           type="button"
           onClick={() => changeMonth(1)}
           aria-label={CALENDAR_TEXT.nextMonth}
-          className="min-h-11 min-w-11 rounded-md text-gray-600 hover:bg-gray-100"
+          className="min-h-11 min-w-11 rounded-md text-lg text-gray-500 hover:bg-gray-100"
         >
           ›
         </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center text-xs text-gray-500">
+      <div className="grid grid-cols-7 gap-1 text-center text-xs text-gray-400">
         {WEEKDAYS.map((w) => (
           <div key={w}>{w}</div>
         ))}
@@ -83,12 +83,12 @@ export function Calendar({ selected, onSelect, onClose }: CalendarProps) {
                 onSelect(cell.dateIso);
                 onClose();
               }}
-              className={`min-h-11 rounded-md text-sm ${
+              className={`min-h-11 rounded-md text-sm transition-colors ${
                 isSelected
-                  ? "bg-blue-600 text-white"
+                  ? "bg-blue-600 font-semibold text-white"
                   : isToday
-                    ? "border border-blue-400 text-blue-600"
-                    : "text-gray-800 hover:bg-gray-100"
+                    ? "border border-blue-300 font-semibold text-blue-600"
+                    : "text-gray-700 hover:bg-gray-100"
               }`}
             >
               {cell.day}
@@ -100,7 +100,7 @@ export function Calendar({ selected, onSelect, onClose }: CalendarProps) {
       <button
         type="button"
         onClick={onClose}
-        className="mt-2 w-full rounded-md border border-gray-200 py-2 text-sm text-gray-600"
+        className="mt-3 min-h-11 w-full rounded-md border border-gray-200 text-sm font-medium text-gray-500 hover:bg-gray-50"
       >
         {CALENDAR_TEXT.close}
       </button>
