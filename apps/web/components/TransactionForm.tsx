@@ -42,7 +42,7 @@ export function TransactionForm({ onAdd }: TransactionFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-3 rounded-lg border border-gray-200 p-4"
+      className="flex flex-col gap-2 rounded-lg border border-gray-200 p-3"
     >
       <h2 className="text-sm font-semibold text-gray-900">
         {DETAIL_TEXT.entryFormHeading}
@@ -67,7 +67,7 @@ export function TransactionForm({ onAdd }: TransactionFormProps) {
         ) : null}
       </div>
 
-      <div className="flex gap-4 text-sm text-gray-700">
+      <div className="flex gap-3 text-sm text-gray-700">
         <label className="flex items-center gap-2">
           <input
             type="radio"

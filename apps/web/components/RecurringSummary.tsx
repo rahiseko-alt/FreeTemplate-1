@@ -8,8 +8,8 @@ interface RecurringSummaryProps {
 /** 履歴から自動検出された「毎月決まっている」支出・収入（読み取り専用）。 */
 export function RecurringSummary({ rules }: RecurringSummaryProps) {
   return (
-    <section className="rounded-lg border border-gray-200 p-4">
-      <h2 className="mb-2 text-sm font-semibold text-gray-900">
+    <section className="rounded-lg border border-gray-200 p-3">
+      <h2 className="mb-1 text-sm font-semibold text-gray-900">
         {DETAIL_TEXT.recurringHeading}
       </h2>
       {rules.length === 0 ? (
@@ -26,7 +26,7 @@ export function RecurringSummary({ rules }: RecurringSummaryProps) {
           {rules.map((rule) => (
             <li
               key={`${rule.type}:${rule.dayOfMonth}:${rule.amount}`}
-              className="flex items-center justify-between py-2"
+              className="flex items-center justify-between py-1.5"
             >
               <div>
                 <p className="text-sm text-gray-900">

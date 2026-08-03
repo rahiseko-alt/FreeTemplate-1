@@ -35,19 +35,19 @@ export function FixedDailyExpenseSection({
   }
 
   return (
-    <section className="rounded-lg border border-gray-200 p-4">
-      <h2 className="mb-2 text-sm font-semibold text-gray-900">
+    <section className="rounded-lg border border-gray-200 p-3">
+      <h2 className="mb-1 text-sm font-semibold text-gray-900">
         {DETAIL_TEXT.fixedDailyHeading}
       </h2>
 
       {items.length === 0 ? (
-        <p className="mb-3 text-sm text-gray-500">
+        <p className="mb-2 text-sm text-gray-500">
           {DETAIL_TEXT.fixedDailyEmpty}
         </p>
       ) : (
-        <ul className="mb-3 flex flex-col divide-y divide-gray-100">
+        <ul className="mb-2 flex flex-col divide-y divide-gray-100">
           {items.map((item) => (
-            <li key={item.id} className="flex items-center justify-between py-2">
+            <li key={item.id} className="flex items-center justify-between py-1.5">
               <span className="text-sm text-gray-900">
                 {item.memo || DETAIL_TEXT.fixedDailyHeading}
               </span>
@@ -68,7 +68,7 @@ export function FixedDailyExpenseSection({
         </ul>
       )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
         <label className="flex flex-col gap-1 text-sm text-gray-700">
           {DETAIL_TEXT.fixedDailyAmountLabel}
           <input

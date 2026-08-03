@@ -19,14 +19,14 @@ export function TransactionList({
   const sorted = [...transactions].sort((a, b) => (a.date < b.date ? 1 : -1));
 
   return (
-    <section className="rounded-lg border border-gray-200 p-4">
-      <h2 className="mb-2 text-sm font-semibold text-gray-900">{heading}</h2>
+    <section className="rounded-lg border border-gray-200 p-3">
+      <h2 className="mb-1 text-sm font-semibold text-gray-900">{heading}</h2>
       {sorted.length === 0 ? (
         <p className="text-sm text-gray-500">{emptyMessage}</p>
       ) : (
         <ul className="flex flex-col divide-y divide-gray-100">
           {sorted.map((t) => (
-            <li key={t.id} className="flex items-center justify-between py-2">
+            <li key={t.id} className="flex items-center justify-between py-1.5">
               <div>
                 <p className="text-sm text-gray-900">{formatJP(t.date)}</p>
                 {t.memo ? (
