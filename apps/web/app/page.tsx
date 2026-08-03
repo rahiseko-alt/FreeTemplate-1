@@ -1,19 +1,23 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { BalanceChart } from "../components/BalanceChart";
 import { Calendar } from "../components/Calendar";
-import { HOME_DESCRIPTION, HOME_HEADING, HOME_TEXT } from "../lib/content";
+import { FixedDailyExpenseSection } from "../components/FixedDailyExpenseSection";
+import { RecurringSummary } from "../components/RecurringSummary";
+import { TransactionForm } from "../components/TransactionForm";
+import { TransactionList } from "../components/TransactionList";
+import { DETAIL_TEXT, HOME_DESCRIPTION, HOME_HEADING, HOME_TEXT } from "../lib/content";
 import { formatJP, todayISO } from "../lib/date";
 import {
   currentBalance,
   dailyBalanceSeries,
   forecastBalance,
 } from "../lib/forecast";
+import { detectRecurringMonthly } from "../lib/recurring";
 import { loadAppData, saveAppData } from "../lib/storage";
-import type { AppData } from "../lib/types";
+import type { AppData, FixedDailyExpense, Transaction } from "../lib/types";
 
 const MAX_CHART_POINTS = 45;
 
@@ -25,9 +29,7 @@ export default function Home() {
     setData(loadAppData());
   }, []);
 
-  function selectDate(dateIso: string) {
-    if (!data) return;
-    const next: AppData = { ...data, selectedDate: dateIso };
+  function update(next: AppData) {
     setData(next);
     saveAppData(next);
   }
@@ -50,6 +52,41 @@ export default function Home() {
   const rangeEnd = data.selectedDate <= today ? today : data.selectedDate;
   const series = sampledSeries(data, rangeStart, rangeEnd);
 
+  const expenses = data.transactions.filter((t) => t.type === "expense");
+  const incomes = data.transactions.filter((t) => t.type === "income");
+  const recurring = detectRecurringMonthly(data.transactions);
+
+  function selectDate(dateIso: string) {
+    if (!data) return;
+    update({ ...data, selectedDate: dateIso });
+  }
+
+  function addTransaction(t: Transaction) {
+    if (!data) return;
+    update({ ...data, transactions: [...data.transactions, t] });
+  }
+
+  function deleteTransaction(id: string) {
+    if (!data) return;
+    update({
+      ...data,
+      transactions: data.transactions.filter((t) => t.id !== id),
+    });
+  }
+
+  function addFixedDaily(item: FixedDailyExpense) {
+    if (!data) return;
+    update({ ...data, fixedDailyExpenses: [...data.fixedDailyExpenses, item] });
+  }
+
+  function deleteFixedDaily(id: string) {
+    if (!data) return;
+    update({
+      ...data,
+      fixedDailyExpenses: data.fixedDailyExpenses.filter((f) => f.id !== id),
+    });
+  }
+
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col gap-6 bg-white p-6">
       <header>
@@ -58,6 +95,10 @@ export default function Home() {
       </header>
 
       <section className="rounded-lg border border-gray-200 p-4">
+        <h2 className="mb-3 text-sm font-semibold text-gray-900">
+          {HOME_TEXT.forecastHeading}
+        </h2>
+
         <p className="mb-2 text-xs text-gray-500">{HOME_TEXT.dateQuestion}</p>
         <button
           type="button"
@@ -67,18 +108,18 @@ export default function Home() {
           {formatJP(data.selectedDate)}
           {HOME_TEXT.changeDateSuffix}
         </button>
-      </section>
 
-      {showCalendar ? (
-        <Calendar
-          selected={data.selectedDate}
-          onSelect={selectDate}
-          onClose={() => setShowCalendar(false)}
-        />
-      ) : null}
+        {showCalendar ? (
+          <div className="mt-3">
+            <Calendar
+              selected={data.selectedDate}
+              onSelect={selectDate}
+              onClose={() => setShowCalendar(false)}
+            />
+          </div>
+        ) : null}
 
-      <section className="rounded-lg border border-gray-200 p-4">
-        <p className="text-sm text-gray-500">
+        <p className="mt-4 text-sm text-gray-500">
           {isToday
             ? HOME_TEXT.todayCaption
             : `${formatJP(data.selectedDate)}${HOME_TEXT.futureConnector}`}
@@ -111,12 +152,29 @@ export default function Home() {
         <BalanceChart points={series} highlightDate={data.selectedDate} />
       </section>
 
-      <Link
-        href="/detail"
-        className="min-h-11 rounded-md bg-blue-600 px-4 py-3 text-center text-sm font-semibold text-white"
-      >
-        {HOME_TEXT.detailLink}
-      </Link>
+      <TransactionForm onAdd={addTransaction} />
+
+      <TransactionList
+        heading={DETAIL_TEXT.expenseListHeading}
+        emptyMessage={DETAIL_TEXT.emptyExpense}
+        transactions={expenses}
+        onDelete={deleteTransaction}
+      />
+
+      <TransactionList
+        heading={DETAIL_TEXT.incomeListHeading}
+        emptyMessage={DETAIL_TEXT.emptyIncome}
+        transactions={incomes}
+        onDelete={deleteTransaction}
+      />
+
+      <FixedDailyExpenseSection
+        items={data.fixedDailyExpenses}
+        onAdd={addFixedDaily}
+        onDelete={deleteFixedDaily}
+      />
+
+      <RecurringSummary rules={recurring} />
     </main>
   );
 }
