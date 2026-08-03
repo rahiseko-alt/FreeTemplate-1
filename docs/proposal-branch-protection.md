@@ -1,6 +1,6 @@
 # 提案書：安全度と快適性のバランス（branch protection 未設定への対応）
 
-作成日：2026-08-03。次回セッションでの実施判断のために作成。**ここに書かれた対策はまだ何も実施していない。**
+作成日：2026-08-03。**2026-08-03、下記Aは実施済み（Ruleset `require-ci-green` を有効化。GitHub API で確認済み）。**
 根拠は敵対的監査エージェントが GitHub API・ワークフロー実ログを直接確認した結果（会話ログ参照。実行者は `rahiseko-alt`、対象コミットは `main` の各PRマージコミット）。
 
 ## 目的
@@ -21,7 +21,18 @@
 
 ## 推奨する最小セット（やること）
 
-### A. GitHub Ruleset を1つ設定する（`#1・#4・#5` の根本原因に対応）
+### A. GitHub Ruleset を1つ設定する（`#1・#4・#5` の根本原因に対応）— **実施済み**
+
+2026-08-03、`rahiseko-alt` が GitHub UI で Ruleset `require-ci-green` を作成。GitHub API
+（`GET /repos/rahiseko-alt/FreeTemplate-1/rulesets/20293174`）で以下を確認済み：
+
+- `enforcement: active`、対象 `~DEFAULT_BRANCH`
+- `required_status_checks`: `ci-green`
+- `pull_request`: `required_approving_review_count: 0`（PR必須・承認不要）
+- 追加で `deletion` / `non_fast_forward` も含まれる（ブランチ削除・強制push上書きも防止。提案時点の想定より一歩手厚い）
+- `current_user_can_bypass: never`（管理者含め誰もバイパスできない）
+
+以下は設定当時に検討した内容（記録として残す）。
 
 **人が管理者権限で GitHub UI から行う必要がある**（GitHub Actions からは変更できない）。
 
@@ -39,7 +50,7 @@
 
 **注意：`scripts/setup.sh` だけでは不十分。** classic Branch Protection API の制約で「Required approvals=0のPR必須化」を設定できないため、スクリプトを実行しただけでは直pushが可能なまま＝`ci-green`を丸ごと迂回できる状態が残る（`scripts/setup.sh` 冒頭コメントに既知の制約として明記済み）。上記のUI手順が必須。
 
-### B. `hold` ラベルを作成する（`#2` に対応）
+### B. `hold` ラベルを作成する（`#2` に対応）— **実施済み**
 
 - ラベル名 `hold` を1つ作成するだけ。
 - `.claude/skills/in-out/SKILL.md` に1行だけ「様子見したいPRにだけ付ける。それ以外では使わない」を追記。
@@ -51,16 +62,18 @@
 - **`auto-merge.yml` への人間レビュー必須化の追加** → 承認待ちが発生し「待たない」という目的と正面から矛盾するため見送る。
 - **`auto-merge.yml` の再設計（収束の高速化）** → `#3` は実害が小さく、実運用は人間の手動マージで十分に機能している。再設計のコスト・複雑化のリスクに見合わない。
 
-## ついでに直しておくと良い軽微な修正（`#7`、コストほぼゼロ）
+## ついでに直しておくと良い軽微な修正（`#7`、コストほぼゼロ）— **実施済み**
 
 - `.github/workflows/auto-merge.yml` のコメント「AGENTS.md『検証の規律』を参照」→ 現行の節名「完了の証明」に更新。
 - `scripts/setup.sh` のコメント「AGENTS.md 手順0-b」→ 現行の場所「`setup` skill 手順7」に更新。
 
-## 次回セッションでやること（チェックリスト）
+## チェックリスト（更新: 2026-08-03）
 
-1. [ ] リポジトリが Public であることを確認（既にPublicのはず）
-2. [ ] 上記Aの手順でGitHub UIからRulesetを作成する（人の手作業。ユーザーに実施してもらう、または管理者権限がある前提で代行するかは次回確認）
-3. [ ] `hold` ラベルを作成し、`in-out/SKILL.md` に1行追記する
-4. [ ] `auto-merge.yml` / `scripts/setup.sh` のコメント参照を更新する
-5. [ ] Ruleset設定後、実際に赤いブランチから `main` への直pushを試して拒否されることを外部事実として確認する（`完了の証明`の原則に従う）
-6. [ ] 完了したら `docs/handoff.md` に証拠（Ruleset設定のURL・確認結果・commit SHA）を記録し、このファイルの「未実施」を「実施済み」に書き換えるか、削除する
+1. [x] リポジトリが Public であることを確認
+2. [x] GitHub UIからRulesetを作成（`rahiseko-alt` が実施。証拠：`GET /repos/.../rulesets/20293174` の応答内容、本ファイル上部に記録）
+3. [x] `hold` ラベルを作成し、`in-out/SKILL.md` に1行追記（commit `8c5da81`）
+4. [x] `auto-merge.yml` / `scripts/setup.sh` のコメント参照を更新（commit `8c5da81`）
+5. [ ] Ruleset設定後、実際に赤いブランチ・直pushが拒否されることを実地で確認する（API上の設定確認は済んでいるが、実際に弾かれる様子はまだ見ていない）
+6. [ ] `docs/handoff.md` に今回の証拠（Ruleset ID・commit SHA）を反映する
+
+主要3点（Ruleset・holdラベル・コメント修正）は完了。残るのは5の実地確認と6の引継ぎ反映のみ。

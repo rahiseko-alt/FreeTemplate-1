@@ -21,7 +21,7 @@
 #   （classic API は required_approving_review_count に 0 を受け付けない）。
 #   このスクリプトだけを実行した状態では main への直 push が可能なまま＝
 #   ci-green を丸ごと迂回できてしまう。実地で確認済み。
-#   PR必須化は AGENTS.md 手順0-b の (A) Rulesets を手動で使うこと
+#   PR必須化は setup skill 手順7の Rulesets を手動で使うこと
 #   （Require a pull request before merging にチェック、Required approvals は 0）。
 #   ※ ci-green は ci.yml の集約ゲートの job id と一致させてある（'name:' は付けない）。
 #     ここを変えたら両方直すこと。
