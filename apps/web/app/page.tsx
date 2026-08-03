@@ -88,18 +88,19 @@ export default function Home() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-6 bg-white p-6">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-3 bg-white p-4">
       <header>
         <h1 className="text-xl font-bold text-gray-900">{HOME_HEADING}</h1>
         <p className="text-sm text-gray-500">{HOME_DESCRIPTION}</p>
       </header>
 
-      <section className="rounded-lg border border-gray-200 p-4">
-        <h2 className="mb-3 text-sm font-semibold text-gray-900">
-          {HOME_TEXT.forecastHeading}
+      <section className="rounded-lg border border-gray-200 p-3">
+        <h2 className="mb-1 text-sm font-semibold text-gray-900">
+          {HOME_TEXT.forecastHeadingPrefix}
+          {formatJP(data.selectedDate)}
         </h2>
 
-        <p className="mb-2 text-xs text-gray-500">{HOME_TEXT.dateQuestion}</p>
+        <p className="mb-1 text-xs text-gray-500">{HOME_TEXT.dateQuestion}</p>
         <button
           type="button"
           onClick={() => setShowCalendar((v) => !v)}
@@ -110,7 +111,7 @@ export default function Home() {
         </button>
 
         {showCalendar ? (
-          <div className="mt-3">
+          <div className="mt-2">
             <Calendar
               selected={data.selectedDate}
               onSelect={selectDate}
@@ -119,7 +120,7 @@ export default function Home() {
           </div>
         ) : null}
 
-        <p className="mt-4 text-sm text-gray-500">
+        <p className="mt-2 text-sm text-gray-500">
           {isToday
             ? HOME_TEXT.todayCaption
             : `${formatJP(data.selectedDate)}${HOME_TEXT.futureConnector}`}
@@ -138,7 +139,7 @@ export default function Home() {
               : HOME_TEXT.futureCaption}
         </p>
         {!isToday ? (
-          <p className="mt-2 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-gray-400">
             {current < 0
               ? HOME_TEXT.currentShortfallPrefix
               : HOME_TEXT.currentBalancePrefix}
@@ -148,7 +149,7 @@ export default function Home() {
         ) : null}
       </section>
 
-      <section className="rounded-lg border border-gray-200 p-4">
+      <section className="rounded-lg border border-gray-200 p-3">
         <BalanceChart points={series} highlightDate={data.selectedDate} />
       </section>
 

@@ -40,8 +40,8 @@ export function Calendar({ selected, onSelect, onClose }: CalendarProps) {
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-      <div className="mb-3 flex items-center justify-between">
+    <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
+      <div className="mb-2 flex items-center justify-between">
         <button
           type="button"
           onClick={() => changeMonth(-1)}
@@ -100,7 +100,7 @@ export function Calendar({ selected, onSelect, onClose }: CalendarProps) {
       <button
         type="button"
         onClick={onClose}
-        className="mt-3 w-full rounded-md border border-gray-200 py-2 text-sm text-gray-600"
+        className="mt-2 w-full rounded-md border border-gray-200 py-2 text-sm text-gray-600"
       >
         {CALENDAR_TEXT.close}
       </button>
