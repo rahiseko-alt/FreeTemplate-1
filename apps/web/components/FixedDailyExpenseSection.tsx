@@ -35,30 +35,30 @@ export function FixedDailyExpenseSection({
   }
 
   return (
-    <section className="rounded-lg border border-gray-200 p-3">
-      <h2 className="mb-1 text-sm font-semibold text-gray-900">
+    <div>
+      <h2 className="mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase">
         {DETAIL_TEXT.fixedDailyHeading}
       </h2>
 
       {items.length === 0 ? (
-        <p className="mb-2 text-sm text-gray-500">
+        <p className="mb-3 text-sm text-gray-500">
           {DETAIL_TEXT.fixedDailyEmpty}
         </p>
       ) : (
-        <ul className="mb-2 flex flex-col divide-y divide-gray-100">
+        <ul className="mb-3 flex flex-col divide-y divide-gray-100">
           {items.map((item) => (
-            <li key={item.id} className="flex items-center justify-between py-1.5">
+            <li key={item.id} className="flex items-center justify-between py-2">
               <span className="text-sm text-gray-900">
                 {item.memo || DETAIL_TEXT.fixedDailyHeading}
               </span>
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-semibold text-gray-900">
-                  {item.amount.toLocaleString("ja-JP")}円
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-red-600">
+                  -{item.amount.toLocaleString("ja-JP")}円
                 </span>
                 <button
                   type="button"
                   onClick={() => onDelete(item.id)}
-                  className="min-h-11 min-w-11 text-xs text-gray-400"
+                  className="min-h-11 min-w-11 rounded-md text-xs text-gray-400 hover:bg-gray-50 hover:text-gray-600"
                 >
                   {DETAIL_TEXT.deleteButton}
                 </button>
@@ -68,8 +68,8 @@ export function FixedDailyExpenseSection({
         </ul>
       )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-        <label className="flex flex-col gap-1 text-sm text-gray-700">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2 rounded-xl bg-gray-50 p-3">
+        <label className="flex flex-col gap-1 text-sm font-medium text-gray-600">
           {DETAIL_TEXT.fixedDailyAmountLabel}
           <input
             type="number"
@@ -80,30 +80,30 @@ export function FixedDailyExpenseSection({
               setAmount(e.target.value);
               setShowAmountError(false);
             }}
-            className="min-h-11 rounded-md border border-gray-300 px-3"
+            className="min-h-11 rounded-lg border border-gray-300 bg-white px-3 font-normal text-gray-900"
           />
           {showAmountError ? (
-            <span className="text-xs text-red-600">
+            <span className="text-xs font-normal text-red-600">
               {DETAIL_TEXT.amountError}
             </span>
           ) : null}
         </label>
-        <label className="flex flex-col gap-1 text-sm text-gray-700">
+        <label className="flex flex-col gap-1 text-sm font-medium text-gray-600">
           {DETAIL_TEXT.memoLabel}
           <input
             type="text"
             value={memo}
             onChange={(e) => setMemo(e.target.value)}
-            className="min-h-11 rounded-md border border-gray-300 px-3"
+            className="min-h-11 rounded-lg border border-gray-300 bg-white px-3 font-normal text-gray-900"
           />
         </label>
         <button
           type="submit"
-          className="min-h-11 rounded-md border border-gray-300 text-sm font-semibold text-gray-700"
+          className="min-h-11 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-100"
         >
           {DETAIL_TEXT.fixedDailyAddButton}
         </button>
       </form>
-    </section>
+    </div>
   );
 }

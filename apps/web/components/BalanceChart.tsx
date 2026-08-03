@@ -7,14 +7,14 @@ interface BalanceChartProps {
 }
 
 const WIDTH = 320;
-const HEIGHT = 140;
-const TOP_PAD = 16;
-const BOTTOM_PAD = 20;
+const HEIGHT = 160;
+const TOP_PAD = 20;
+const BOTTOM_PAD = 22;
 
 const POSITIVE = "#2a78d6";
 const NEGATIVE = "#e34948";
-const BASELINE = "#c3c2b7";
-const MUTED = "#898781";
+const BASELINE = "#d8d5cb";
+const MUTED = "#8b897f";
 
 /**
  * 残高の動きを、時間の流れ（横）にそって水位が上下する1本の線と塗りで見せる。
@@ -55,7 +55,7 @@ export function BalanceChart({ points, highlightDate }: BalanceChartProps) {
 
   return (
     <div>
-      <h2 className="mb-3 text-sm font-semibold text-gray-900">
+      <h2 className="mb-2 text-xs font-semibold tracking-wide text-gray-400 uppercase">
         {HOME_TEXT.chartHeading}
       </h2>
       <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="w-full" role="img">
@@ -108,7 +108,7 @@ export function BalanceChart({ points, highlightDate }: BalanceChartProps) {
           d={linePath}
           fill="none"
           stroke={lineStroke}
-          strokeWidth={2}
+          strokeWidth={2.5}
           strokeLinejoin="round"
           strokeLinecap="round"
         />
@@ -127,7 +127,14 @@ export function BalanceChart({ points, highlightDate }: BalanceChartProps) {
             <circle
               cx={x(highlightIndex)}
               cy={y(highlight.balance)}
-              r={4}
+              r={8}
+              fill={highlight.balance < 0 ? NEGATIVE : POSITIVE}
+              fillOpacity={0.15}
+            />
+            <circle
+              cx={x(highlightIndex)}
+              cy={y(highlight.balance)}
+              r={4.5}
               fill={highlight.balance < 0 ? NEGATIVE : POSITIVE}
               stroke="#fff"
               strokeWidth={2}
@@ -151,10 +158,16 @@ export function BalanceChart({ points, highlightDate }: BalanceChartProps) {
       </svg>
 
       {highlight ? (
-        <p className="mt-1 text-center text-xs font-semibold text-gray-900">
+        <p className="mt-2 text-center text-xs font-semibold text-gray-500">
           {formatShort(highlight.date)}：
-          {Math.abs(highlight.balance).toLocaleString("ja-JP")}円
-          {highlight.balance < 0 ? HOME_TEXT.chartShortfallSuffix : ""}
+          <span
+            className={
+              highlight.balance < 0 ? "text-red-600" : "text-gray-900"
+            }
+          >
+            {Math.abs(highlight.balance).toLocaleString("ja-JP")}円
+            {highlight.balance < 0 ? HOME_TEXT.chartShortfallSuffix : ""}
+          </span>
         </p>
       ) : null}
     </div>
