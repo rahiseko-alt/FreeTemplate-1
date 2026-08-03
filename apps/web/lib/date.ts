@@ -23,6 +23,12 @@ export function addDays(iso: string, days: number): string {
   return toISO(d);
 }
 
+export function addMonths(iso: string, months: number): string {
+  const d = fromISO(iso);
+  d.setMonth(d.getMonth() + months);
+  return toISO(d);
+}
+
 export function daysBetween(startIso: string, endIso: string): number {
   const start = fromISO(startIso);
   const end = fromISO(endIso);

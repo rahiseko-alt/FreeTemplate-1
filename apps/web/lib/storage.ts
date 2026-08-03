@@ -1,4 +1,4 @@
-import { todayISO } from "./date";
+import { addMonths, todayISO } from "./date";
 import type { AppData } from "./types";
 
 const STORAGE_KEY = "kakeibo-kun:v1";
@@ -6,7 +6,7 @@ const STORAGE_KEY = "kakeibo-kun:v1";
 export function defaultAppData(): AppData {
   return {
     startingBalance: 0,
-    selectedDate: todayISO(),
+    selectedDate: addMonths(todayISO(), 1),
     transactions: [],
     fixedDailyExpenses: [],
   };

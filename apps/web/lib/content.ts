@@ -18,6 +18,7 @@ export const HOME_HEADING = "家計簿くん";
 export const HOME_DESCRIPTION = "この先いつ、いくら残るかが分かります";
 
 export const HOME_TEXT = {
+  forecastHeading: "残高予測",
   dateQuestion: "いつのお金が知りたい？",
   changeDateSuffix: "を変える",
   futureConnector: "には",
@@ -31,7 +32,6 @@ export const HOME_TEXT = {
   currentBalanceSuffix: "円",
   chartHeading: "お金の動き",
   chartShortfallSuffix: "たりない",
-  detailLink: "くわしく見る",
 } as const;
 
 export const CALENDAR_TEXT = {
@@ -42,7 +42,6 @@ export const CALENDAR_TEXT = {
 } as const;
 
 export const DETAIL_TEXT = {
-  heading: "くわしく",
   expenseListHeading: "使ったお金（日ごと）",
   incomeListHeading: "もらったお金（日ごと）",
   emptyExpense: "まだ記録がありません",
@@ -67,5 +66,4 @@ export const DETAIL_TEXT = {
   recurringEmptyNote: "自分で入力しなくても、きろくがたまると自動で出てきます",
   recurringExpenseLabel: "使ったお金",
   recurringIncomeLabel: "もらったお金",
-  backLink: "もどる",
 } as const;
