@@ -5,43 +5,48 @@
 
 ## ①今回実施
 
-「アプリ作れよ」の指示を受け、`setup` の手順1〜6（新規・雛形づくり）を実行した。
-ヒアリング結果：利用者＝自分だけ、利用方法＝ブラウザでURL、アプリ名＝「家計簿くん」。
-機能の中身はまだ無い（意図的。入口から出口を1回通すのが今回のスコープ）。
+前回のhandoffは「Vercel未接続・機能未実装」時点のものだったが、実際は同一セッション内で
+以下まで全て完了している（handoff更新が遅れていた）。
 
-- 同梱の見本を削除：`packages/ui`（丸ごと）、`apps/web/app/estimate/*`、
-  `apps/web/lib/estimate.ts` / `estimateForm.ts`、対応テスト、`apps/web/app/api/boom/route.ts`、
-  `apps/web/AGENTS.md`（内容はルートの `AGENTS.md` に統合）。
-- `pnpm-workspace.yaml` を `apps/*` のみに変更（`packages/ui` を消したため）。
-  `apps/web/package.json` から `@repo/ui` 依存を削除、`next.config.ts` の
-  `transpilePackages` も削除。
-- 空のトップページ（見出し「家計簿くん」＋説明文のみ）と、渡し方・チェックの動作確認用の
-  最小関数 `apps/web/lib/format.ts`（`formatMessage`）とそのテストを新設。
-  `apps/web/lib/content.ts` を「家計簿くん」向けに書き換え（文言はここに集約、2箇所以上に書かない）。
-- CI のマーカー文言を `cc-v2 monorepo` → `家計簿くん` に統一（`.github/workflows/ci.yml`・
-  `prod-smoke.yml`）。`prod-smoke.yml` の `PROD_URL` は暫定で
-  `https://kakeibo-kun.vercel.app` を置いた（Vercel 接続後、実際の割当ドメインに要更新）。
-- ルートの `package.json` の `name` を `cc-v2` → `kakeibo-kun` に、`README.md` を
-  テンプレ説明から実案件（家計簿くん）の起動手順に書き換え。
-- `AGENTS.md` の「コマンド」節を実コマンドで埋めた（未記入を解消）。
-- ローカルで `pnpm install` → `typecheck` / `lint` / `test` / `build` /
-  `audit --audit-level moderate` を全て緑で確認。さらに `next start` を実際に起動し、
-  トップページのマーカー「家計簿くん」と `/api/health` の 200 を curl で確認済み。
+- **家計簿くんの主要機能を実装**：任意の日付の残高予測（対象日は固定・カレンダーから変更可）、
+  詳細画面（支出・収入の日毎一覧、手入力、毎日の固定支出）、毎月定額の自前パターン検知（外部AI不使用）、
+  横線の水位グラフ（0円を境に青/赤）。データはブラウザのlocalStorage保存（ログイン不要）。
+- **UIの分かりやすさを2周目で修正**：初回実装はユーザーから「対象日って何だよ」「小学生がわかる
+  書き方しろ」「横線じゃないし」と強いダメ出しを受け、文言を平易な表現に全面書き換え、グラフを
+  棒の羅列から時間軸に沿った1本の線＋塗り（本物の横線グラフ）に作り直した。
+- **独立検証エージェントに実ブラウザで敵対的確認させ、7件の不具合を修正**：マイナス残高の生表示、
+  「1日あたり」等の学年依存の言い回し、無反応な入力エラー、残高0円境界のグラフ色バグ、
+  日付欄の表記不統一（英語式→カレンダー統一）等。
+- Vercel接続済み。本番URL: https://free-template-1-web.vercel.app（`prod-smoke` 緑を確認済み）
+- **運用の仕組み自体を敵対的監査**し、`docs/proposal-branch-protection.md` に対応案を作成。
+  最重要指摘：**`main` に branch protection が一切無く**、CI緑を待たずに直push/直マージできる
+  状態だった（実例：PR#17を、auto-mergeの緑判定完了前に人間が直接マージ済み）。
+- **Ruleset `require-ci-green` を有効化**（サクサク感を維持する最小構成：`ci-green`必須＋PR必須・
+  承認0件）。GitHub API で設定内容を確認し、さらに実際に `main` へ直pushを試みて
+  `GH013`（Required status check "ci-green" is expected / Changes must be made through
+  a pull request）で拒否されることを実地確認した。
+- `hold` ラベルを作成（マージ保留用、`in-out/SKILL.md` に使い方を1行追記）。
+- `auto-merge.yml` / `scripts/setup.sh` が指していた現存しないAGENTS.md節
+  （「検証の規律」「手順0-b」）の参照を現行の節名に修正。
 
-証拠：ローカルでの上記コマンド実行結果（全て成功）。CI の run URL は次回 push 後に確定。
+証拠：CI run（各PRの `ci-green` 緑）、`GET /repos/rahiseko-alt/FreeTemplate-1/rulesets/20293174`
+の応答内容、直push試行時の `GH013` 拒否ログ（会話内で確認済み）。
+マージ済みPR: #14, #17, #18, #19（いずれもsquash、`main` へ反映済み）。
 
 ## ②今回トラブル
 
-無し。
+- PRをsquashマージした後、同じ作業ブランチに新しいコミットを積んでpushしようとすると
+  「ブランチの履歴がsquash元と噛み合わず non-fast-forward で拒否される」現象が複数回発生した
+  （squashは新しいコミットハッシュを作るため）。force pushは許可設定上できないため、
+  都度「originからブランチを作り直す→mainをマージ→新規コミットをcherry-pick」で解消した。
+  次回、同じ問題が起きたら同じ手順で対応する。
+- 詳細は本文中の対応の通り。`docs/failures.md` への1件追記は次回セッションで検討
+  （繰り返す運用上の癖であり、恒久的な教訓として残す価値があるか判断する）。
 
 ## ③次回やる事
 
-- **push して CI（`ci-green`）が緑になることを確認する。** 今回はまだ push していない
-  （ローカル検証まで）。
-- **Vercel 接続はユーザーがブラウザで行う必要がある**（未実施）。接続後、実際の公開URLが
-  分かったら `prod-smoke.yml` の `PROD_URL`（暫定値 `https://kakeibo-kun.vercel.app`）を
-  実URLに合わせて更新し、`prod-smoke` が緑になることを確認する。それまで `prod-smoke` は
-  赤のままで正常（本番未デプロイのため）。
-- 家計簿くんの実機能（収支の記録・一覧など）はまだ何も無い。次は「実装の進め方」に従い、
-  機能を1つ選んで入口から出口までの空通しから始める。
-- 公開設定（`setup` 手順7：Public化 → Secret Protection → Ruleset）はまだ未実施。
+- `docs/proposal-branch-protection.md` の残タスクは無し（主要4項目・実地確認とも完了）。
+  ファイル自体は記録として残す（削除しない）。
+- 家計簿くんを実際に使い込んで、追加の要望・不具合が無いか確認する。
+- squashマージ後のブランチ再構築が毎回手間なので、恒久的な回避策（例：squash以外のマージ手法、
+  もしくは毎回ブランチを使い捨てにする運用）を検討する価値がある。
