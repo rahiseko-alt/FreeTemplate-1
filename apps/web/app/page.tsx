@@ -96,7 +96,8 @@ export default function Home() {
 
       <section className="rounded-lg border border-gray-200 p-3">
         <h2 className="mb-1 text-sm font-semibold text-gray-900">
-          {HOME_TEXT.forecastHeading}
+          {HOME_TEXT.forecastHeadingPrefix}
+          {formatJP(data.selectedDate)}
         </h2>
 
         <p className="mb-1 text-xs text-gray-500">{HOME_TEXT.dateQuestion}</p>

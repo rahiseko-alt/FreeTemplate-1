@@ -18,7 +18,7 @@ export const HOME_HEADING = "家計簿くん";
 export const HOME_DESCRIPTION = "この先いつ、いくら残るかが分かります";
 
 export const HOME_TEXT = {
-  forecastHeading: "残高予測",
+  forecastHeadingPrefix: "Balance on ",
   dateQuestion: "いつのお金が知りたい？",
   changeDateSuffix: "を変える",
   futureConnector: "には",
