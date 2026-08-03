@@ -6,7 +6,7 @@ name: auto-merge
 #   - commit status(prod-smoke) が combined success
 #   - PR が同一リポ発・非draft・mergeable・`hold` ラベル無し
 # これらが揃った main 向け PR を squash マージする。人間はボタンを押さない。
-# 承認の階層（tier）は設けない（AGENTS.md「検証の規律」＝承認はシンプル、を参照）。
+# 承認の階層（tier）は設けない（AGENTS.md「完了の証明」＝証拠は外部事実のみ、を参照）。
 #
 # ※ private 無料プランでも動くよう、branch protection の auto-merge 機能ではなく
 #   トークンによる明示マージで実装する（GITHUB_TOKEN が主体）。
