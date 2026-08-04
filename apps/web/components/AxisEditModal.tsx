@@ -8,6 +8,8 @@ import { AXIS_EDIT_TEXT } from "../lib/content";
 interface AxisEditModalProps {
   role: AxisTickRole;
   currentValue: number;
+  /** 他の2つの目盛りの現在値。上端＞下端、および中間が範囲内であることの検証に使う。 */
+  bounds: Record<AxisTickRole, number>;
   onApply: (value: number) => void;
   onReset: () => void;
   onClose: () => void;
@@ -23,18 +25,27 @@ const HEADING: Record<AxisTickRole, string> = {
 export function AxisEditModal({
   role,
   currentValue,
+  bounds,
   onApply,
   onReset,
   onClose,
 }: AxisEditModalProps) {
   const [value, setValue] = useState(String(currentValue));
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<"invalidNumber" | "invalidRange" | null>(null);
 
   function handleApply() {
     const trimmed = value.trim();
     const parsed = Number(trimmed);
     if (trimmed === "" || !Number.isFinite(parsed)) {
-      setError(true);
+      setError("invalidNumber");
+      return;
+    }
+    const top = role === "top" ? parsed : bounds.top;
+    const bottom = role === "bottom" ? parsed : bounds.bottom;
+    const rangeOk =
+      role === "middle" ? parsed > bottom && parsed < top : top > bottom;
+    if (!rangeOk) {
+      setError("invalidRange");
       return;
     }
     onApply(parsed);
@@ -52,13 +63,13 @@ export function AxisEditModal({
             value={value}
             onChange={(e) => {
               setValue(e.target.value);
-              setError(false);
+              setError(null);
             }}
             className="min-h-11 rounded-lg border border-gray-300 px-3 text-lg font-semibold text-gray-900"
             autoFocus
           />
         </label>
-        {error ? <p className="mt-1 text-xs text-red-600">{AXIS_EDIT_TEXT.invalidNumber}</p> : null}
+        {error ? <p className="mt-1 text-xs text-red-600">{AXIS_EDIT_TEXT[error]}</p> : null}
         <div className="mt-4 flex flex-col gap-2">
           <button
             type="button"

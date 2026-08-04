@@ -1,4 +1,4 @@
-import { addDays, daysBetween, fromISO, todayISO } from "./date";
+import { addDays, daysBetween, daysInMonth, fromISO, todayISO } from "./date";
 import { detectRecurringMonthly } from "./recurring";
 import type { AppData, RecurringRule, Transaction } from "./types";
 
@@ -14,15 +14,19 @@ export function currentBalance(data: AppData): number {
   return data.startingBalance + sum;
 }
 
-function dailyProjectedDelta(
+/** 指定日1日分の予測増減（毎月定額ルール＋固定日次支出＋その日の手入力）。 */
+export function dailyProjectedDelta(
   data: AppData,
   dateIso: string,
   recurring: RecurringRule[],
 ): number {
   const day = fromISO(dateIso).getDate();
+  const lastDay = daysInMonth(dateIso);
   let delta = 0;
   for (const rule of recurring) {
-    if (rule.dayOfMonth === day) {
+    // 月末が短い月（例：31日ルールが4/6/9/11月や2月に来た場合）は、その月の最終日に振り替える。
+    const fires = rule.dayOfMonth === day || (rule.dayOfMonth > lastDay && day === lastDay);
+    if (fires) {
       delta += rule.type === "income" ? rule.amount : -rule.amount;
     }
   }

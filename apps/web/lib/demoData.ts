@@ -1,7 +1,7 @@
-import { addMonths, todayISO, toISO } from "./date";
+import { addDays, todayISO, toISO } from "./date";
+import { MAX_FORECAST_DAYS } from "./content";
 import type { AppData, FixedDailyExpense, Transaction, TransactionType } from "./types";
 
-const FORECAST_MONTHS_AHEAD = 3;
 const RECURRING_HISTORY_MONTHS = 3;
 const DAILY_LIVING_COST = 3_500;
 
@@ -51,7 +51,7 @@ function monthAgoDate(year: number, month0: number, monthsAgo: number, day: numb
 
 /**
  * フリーランス（収入が月ごとに変動する）を想定したデモデータ。
- * 過去分は「毎月定額」検知が働くように3か月分の実績を作り、予測日は3か月先にする。
+ * 過去分は「毎月定額」検知が働くように3か月分の実績を作り、予測日は選択可能な最大日数先にする。
  */
 export function buildDemoAppData(): AppData {
   const today = todayISO();
@@ -85,7 +85,7 @@ export function buildDemoAppData(): AppData {
 
   return {
     startingBalance: 0,
-    selectedDate: addMonths(today, FORECAST_MONTHS_AHEAD),
+    selectedDate: addDays(today, MAX_FORECAST_DAYS),
     transactions,
     fixedDailyExpenses,
     chartAxis: { top: null, middle: null, bottom: null },

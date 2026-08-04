@@ -17,12 +17,20 @@ export const HOME_HEADING = "家計簿くん";
 /** トップページの説明文。 */
 export const HOME_DESCRIPTION = "この先の残高をいつでも予測できます。";
 
+/** 記録の金額の上限（円）。TransactionForm / FixedDailyExpenseSection で参照。 */
+export const MAX_TRANSACTION_AMOUNT = 9_990_000;
+
+/** 残高予測日として選べる、今日からの最大日数。 */
+export const MAX_FORECAST_DAYS = 90;
+
 export const HOME_TEXT = {
   forecastHeadingPrefix: "Balance on ",
   dateLabel: "予測日",
   changeDateSuffix: "を変更",
   balanceLabelToday: "現在の残高",
   balanceLabelFuture: "予測残高",
+  shortfallAmountLabelToday: "不足額",
+  shortfallAmountLabelFuture: "不足額（予測）",
   shortfallNoteToday: "残高が不足しています",
   shortfallNoteFuture: "残高が不足する見込みです",
   currentBalancePrefix: "現在の残高：",
@@ -41,6 +49,7 @@ export const AXIS_EDIT_TEXT = {
   headingBottom: "下端の目盛りを変更",
   inputLabel: "金額（円）",
   invalidNumber: "数字を入力してください",
+  invalidRange: "上端は下端より大きい金額にしてください",
   applyButton: "反映",
   cancelButton: "キャンセル",
   resetButton: "自動に戻す",
@@ -71,6 +80,7 @@ export const DETAIL_TEXT = {
   typeExpense: "out",
   amountLabel: "金額",
   amountError: "金額を入力してください",
+  amountMaxError: "999万円までにしてください",
   memoLabel: "メモ",
   addButton: "記録する",
   deleteButton: "削除",

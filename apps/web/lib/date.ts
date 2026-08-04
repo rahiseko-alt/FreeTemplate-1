@@ -29,6 +29,11 @@ export function addMonths(iso: string, months: number): string {
   return toISO(d);
 }
 
+export function daysInMonth(iso: string): number {
+  const d = fromISO(iso);
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+}
+
 export function daysBetween(startIso: string, endIso: string): number {
   const start = fromISO(startIso);
   const end = fromISO(endIso);

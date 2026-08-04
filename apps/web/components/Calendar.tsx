@@ -9,6 +9,8 @@ interface CalendarProps {
   selected: string;
   onSelect: (dateIso: string) => void;
   onClose: () => void;
+  /** これより先の日付は選べないようにする（省略時は上限なし）。 */
+  maxDate?: string;
 }
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
@@ -18,7 +20,7 @@ interface DayCell {
   day: number;
 }
 
-export function Calendar({ selected, onSelect, onClose }: CalendarProps) {
+export function Calendar({ selected, onSelect, onClose, maxDate }: CalendarProps) {
   const initial = fromISO(selected);
   const [year, setYear] = useState(initial.getFullYear());
   const [month, setMonth] = useState(initial.getMonth());
@@ -32,6 +34,11 @@ export function Calendar({ selected, onSelect, onClose }: CalendarProps) {
   for (let day = 1; day <= daysInMonth; day++) {
     cells.push({ dateIso: toISO(new Date(year, month, day)), day });
   }
+
+  const maxYearMonth = maxDate
+    ? fromISO(maxDate).getFullYear() * 12 + fromISO(maxDate).getMonth()
+    : null;
+  const canGoNext = maxYearMonth === null || year * 12 + month < maxYearMonth;
 
   function changeMonth(offset: number) {
     const d = new Date(year, month + offset, 1);
@@ -56,8 +63,9 @@ export function Calendar({ selected, onSelect, onClose }: CalendarProps) {
         <button
           type="button"
           onClick={() => changeMonth(1)}
+          disabled={!canGoNext}
           aria-label={CALENDAR_TEXT.nextMonth}
-          className="min-h-11 min-w-11 rounded-md text-lg text-gray-500 hover:bg-gray-100"
+          className="min-h-11 min-w-11 rounded-md text-lg text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-transparent"
         >
           ›
         </button>
@@ -74,21 +82,25 @@ export function Calendar({ selected, onSelect, onClose }: CalendarProps) {
           if (cell === null) return <div key={`empty-${i}`} />;
           const isSelected = cell.dateIso === selected;
           const isToday = cell.dateIso === today;
+          const isDisabled = maxDate !== undefined && cell.dateIso > maxDate;
           return (
             <button
               key={cell.dateIso}
               type="button"
+              disabled={isDisabled}
               aria-label={`${CALENDAR_TEXT.select}: ${cell.dateIso}`}
               onClick={() => {
                 onSelect(cell.dateIso);
                 onClose();
               }}
               className={`min-h-11 rounded-md text-sm transition-colors ${
-                isSelected
-                  ? "bg-blue-600 font-semibold text-white"
-                  : isToday
-                    ? "border border-blue-300 font-semibold text-blue-600"
-                    : "text-gray-700 hover:bg-gray-100"
+                isDisabled
+                  ? "text-gray-300"
+                  : isSelected
+                    ? "bg-blue-600 font-semibold text-white"
+                    : isToday
+                      ? "border border-blue-300 font-semibold text-blue-600"
+                      : "text-gray-700 hover:bg-gray-100"
               }`}
             >
               {cell.day}

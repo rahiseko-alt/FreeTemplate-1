@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { Calendar } from "./Calendar";
-import { DETAIL_TEXT, HOME_TEXT } from "../lib/content";
+import { DETAIL_TEXT, HOME_TEXT, MAX_TRANSACTION_AMOUNT } from "../lib/content";
 import { formatJP, todayISO } from "../lib/date";
 import type { Transaction, TransactionType } from "../lib/types";
 
@@ -17,13 +17,17 @@ export function TransactionForm({ onAdd }: TransactionFormProps) {
   const [type, setType] = useState<TransactionType>("expense");
   const [amount, setAmount] = useState("");
   const [memo, setMemo] = useState("");
-  const [showAmountError, setShowAmountError] = useState(false);
+  const [amountError, setAmountError] = useState<"empty" | "max" | null>(null);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const amountNumber = Number(amount);
     if (!Number.isFinite(amountNumber) || amountNumber <= 0) {
-      setShowAmountError(true);
+      setAmountError("empty");
+      return;
+    }
+    if (amountNumber > MAX_TRANSACTION_AMOUNT) {
+      setAmountError("max");
       return;
     }
 
@@ -36,7 +40,7 @@ export function TransactionForm({ onAdd }: TransactionFormProps) {
     });
     setAmount("");
     setMemo("");
-    setShowAmountError(false);
+    setAmountError(null);
   }
 
   const accent = type === "expense" ? "red" : "blue";
@@ -77,13 +81,13 @@ export function TransactionForm({ onAdd }: TransactionFormProps) {
           value={amount}
           onChange={(e) => {
             setAmount(e.target.value);
-            setShowAmountError(false);
+            setAmountError(null);
           }}
           className="min-h-11 rounded-lg border border-gray-300 bg-white px-3 text-lg font-semibold text-gray-900"
         />
-        {showAmountError ? (
+        {amountError ? (
           <span className="text-xs font-normal text-red-600">
-            {DETAIL_TEXT.amountError}
+            {amountError === "max" ? DETAIL_TEXT.amountMaxError : DETAIL_TEXT.amountError}
           </span>
         ) : null}
       </label>
