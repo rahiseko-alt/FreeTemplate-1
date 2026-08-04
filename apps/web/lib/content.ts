@@ -35,6 +35,17 @@ export const HOME_TEXT = {
   chartTapHint: "タップすると、その日の残高が分かります",
 } as const;
 
+export const AXIS_EDIT_TEXT = {
+  headingTop: "上端の目盛りを変更",
+  headingMiddle: "中間の目盛りを変更",
+  headingBottom: "下端の目盛りを変更",
+  inputLabel: "金額（円）",
+  invalidNumber: "数字を入力してください",
+  applyButton: "反映",
+  cancelButton: "キャンセル",
+  resetButton: "自動に戻す",
+} as const;
+
 export const DEMO_TEXT = {
   loadLabel: "サンプルデータを試す",
   replaceLabel: "サンプルデータに置き換える",

@@ -1,4 +1,5 @@
 import type { DailyBalancePoint } from "../lib/forecast";
+import type { ChartAxisConfig } from "../lib/types";
 
 export const WIDTH = 320;
 export const HEIGHT = 190;
@@ -44,20 +45,69 @@ function niceRound(n: number): number {
   return Math.round(n / step) * step;
 }
 
-export interface YTick {
-  value: number;
-  baseline: boolean;
-  negative: boolean;
+/** 0を挟むならその0を基準に、外れるなら範囲の中央を目盛りの既定値にする。 */
+function defaultMiddle(domainMin: number, domainMax: number): number {
+  if (domainMin <= 0 && domainMax >= 0) return 0;
+  return niceRound((domainMin + domainMax) / 2);
 }
 
-/** 縦軸の目盛り：上端・0円・下端の最大3本（何円か一目で分かるように）。 */
-export function buildYTicks(min: number, max: number): YTick[] {
-  const ticks: YTick[] = [{ value: 0, baseline: true, negative: false }];
-  const top = niceRound(max);
-  if (top > 0) ticks.unshift({ value: top, baseline: false, negative: false });
-  const bottom = niceRound(min);
-  if (bottom < 0) ticks.push({ value: bottom, baseline: false, negative: true });
-  return ticks;
+/** グラフの縦軸の範囲。ユーザーが上端・下端を指定していればそれを優先する。 */
+export function resolveAxisDomain(
+  values: number[],
+  axis: ChartAxisConfig,
+): { domainMin: number; domainMax: number } {
+  const rawMin = Math.min(0, ...values);
+  const rawMax = Math.max(0, ...values);
+  return {
+    domainMin: axis.bottom ?? rawMin,
+    domainMax: axis.top ?? rawMax,
+  };
+}
+
+export type AxisTickRole = "top" | "middle" | "bottom";
+
+export interface AxisTick {
+  role: AxisTickRole;
+  value: number;
+}
+
+/** 縦軸の目盛り3本（上端・中間・下端）。それぞれユーザーが個別に上書きできる。 */
+export function resolveAxisTicks(values: number[], axis: ChartAxisConfig): AxisTick[] {
+  const rawMin = Math.min(0, ...values);
+  const rawMax = Math.max(0, ...values);
+  const { domainMin, domainMax } = resolveAxisDomain(values, axis);
+  return [
+    { role: "top", value: axis.top ?? niceRound(rawMax) },
+    { role: "middle", value: axis.middle ?? defaultMiddle(domainMin, domainMax) },
+    { role: "bottom", value: axis.bottom ?? niceRound(rawMin) },
+  ];
+}
+
+export interface LabeledTick extends AxisTick {
+  lineY: number;
+  labelY: number;
+}
+
+/**
+ * 目盛りの文字が重ならないよう、縦位置が近いものは少しずらす（線自体は本来の位置のまま）。
+ * ずらした結果が日付ラベルの行と重ならないよう、maxLabelYで下限を止める。
+ */
+export function layoutTickLabels(
+  ticks: AxisTick[],
+  y: (balance: number) => number,
+  maxLabelY: number,
+): LabeledTick[] {
+  const withY = ticks.map((t) => ({ ...t, lineY: y(t.value) }));
+  const sorted = [...withY].sort((a, b) => a.lineY - b.lineY);
+
+  let prevLabelY = -Infinity;
+  const withLabelY = sorted.map((t) => {
+    const labelY = Math.min(maxLabelY, Math.max(t.lineY, prevLabelY + MIN_Y_TICK_GAP));
+    prevLabelY = labelY;
+    return { ...t, labelY };
+  });
+
+  return ticks.map((t) => withLabelY.find((w) => w.role === t.role)!);
 }
 
 export interface NegativeSegment {

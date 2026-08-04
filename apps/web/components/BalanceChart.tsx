@@ -2,40 +2,53 @@
 
 import { useEffect, useId, useState } from "react";
 
+import { AxisEditModal } from "./AxisEditModal";
 import {
   BASELINE,
   BOTTOM_PAD,
   buildCrossingLabels,
   buildNegativeSegments,
-  buildYTicks,
   formatShort,
   formatYenAxis,
   HEIGHT,
+  layoutTickLabels,
   LEFT_PAD,
-  MIN_Y_TICK_GAP,
   MUTED,
   NEGATIVE,
   POSITIVE,
+  resolveAxisDomain,
+  resolveAxisTicks,
   RIGHT_PAD,
   TOP_PAD,
   WIDTH,
+  type AxisTickRole,
 } from "./balanceChartHelpers";
-import { HOME_TEXT } from "../lib/content";
+import { AXIS_EDIT_TEXT, HOME_TEXT } from "../lib/content";
 import { todayISO } from "../lib/date";
 import type { DailyBalancePoint } from "../lib/forecast";
+import type { ChartAxisConfig } from "../lib/types";
+
+const TICK_LABEL: Record<AxisTickRole, string> = {
+  top: AXIS_EDIT_TEXT.headingTop,
+  middle: AXIS_EDIT_TEXT.headingMiddle,
+  bottom: AXIS_EDIT_TEXT.headingBottom,
+};
 
 interface BalanceChartProps {
   points: DailyBalancePoint[];
   highlightDate: string;
+  axis: ChartAxisConfig;
+  onAxisChange: (next: ChartAxisConfig) => void;
 }
 
 /**
  * 残高の動きを、時間の流れ（横）にそって水位が上下する1本の線と塗りで見せる。
  * 縦軸に金額の目盛り、マイナスの期間には背景の帯、不足に転じる日には印を付け、
- * タップした日の残高もその場で確認できる。
+ * タップした日の残高もその場で確認できる。縦軸の目盛りはタップして自由に変更できる。
  */
-export function BalanceChart({ points, highlightDate }: BalanceChartProps) {
+export function BalanceChart({ points, highlightDate, axis, onAxisChange }: BalanceChartProps) {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [editingRole, setEditingRole] = useState<AxisTickRole | null>(null);
   const clipId = useId();
 
   useEffect(() => {
@@ -45,9 +58,8 @@ export function BalanceChart({ points, highlightDate }: BalanceChartProps) {
   if (points.length === 0) return null;
 
   const values = points.map((p) => p.balance);
-  const min = Math.min(0, ...values);
-  const max = Math.max(0, ...values);
-  const span = max - min || 1;
+  const { domainMin, domainMax } = resolveAxisDomain(values, axis);
+  const span = domainMax - domainMin || 1;
 
   const plotTop = TOP_PAD;
   const plotBottom = HEIGHT - BOTTOM_PAD;
@@ -57,7 +69,10 @@ export function BalanceChart({ points, highlightDate }: BalanceChartProps) {
   const n = points.length;
   const x = (i: number) =>
     n === 1 ? LEFT_PAD + plotWidth / 2 : LEFT_PAD + (i / (n - 1)) * plotWidth;
-  const y = (balance: number) => plotTop + plotHeight - ((balance - min) / span) * plotHeight;
+  const y = (balance: number) => {
+    const raw = plotTop + plotHeight - ((balance - domainMin) / span) * plotHeight;
+    return Math.min(plotBottom, Math.max(plotTop, raw));
+  };
 
   const zeroY = y(0);
 
@@ -74,9 +89,8 @@ export function BalanceChart({ points, highlightDate }: BalanceChartProps) {
   const lastPoint = points[n - 1] as DailyBalancePoint;
   const startsToday = firstPoint.date === todayISO();
 
-  const yTicks = buildYTicks(min, max).filter(
-    (tick) => tick.baseline || Math.abs(y(tick.value) - zeroY) >= MIN_Y_TICK_GAP,
-  );
+  const ticks = resolveAxisTicks(values, axis);
+  const labeledTicks = layoutTickLabels(ticks, y, HEIGHT - 16);
   const negativeSegments = buildNegativeSegments(points, x);
   const crossings = buildCrossingLabels(points, x);
 
@@ -89,6 +103,8 @@ export function BalanceChart({ points, highlightDate }: BalanceChartProps) {
     const idx = Math.min(n - 1, Math.max(0, Math.round(t * (n - 1))));
     setHoverIndex(idx);
   }
+
+  const editingTick = ticks.find((t) => t.role === editingRole);
 
   return (
     <div>
@@ -120,22 +136,41 @@ export function BalanceChart({ points, highlightDate }: BalanceChartProps) {
           />
         ))}
 
-        {yTicks.map((tick) => (
-          <g key={`y-${tick.value}`}>
-            <line
-              x1={LEFT_PAD}
-              y1={y(tick.value)}
-              x2={WIDTH - RIGHT_PAD}
-              y2={y(tick.value)}
-              stroke={BASELINE}
-              strokeWidth={1}
-            />
+        {labeledTicks.map((tick) => (
+          <line
+            key={`line-${tick.role}`}
+            x1={LEFT_PAD}
+            y1={tick.lineY}
+            x2={WIDTH - RIGHT_PAD}
+            y2={tick.lineY}
+            stroke={BASELINE}
+            strokeWidth={1}
+          />
+        ))}
+
+        {labeledTicks.map((tick) => (
+          <g
+            key={`label-${tick.role}`}
+            role="button"
+            tabIndex={0}
+            aria-label={TICK_LABEL[tick.role]}
+            onClick={() => setEditingRole(tick.role)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setEditingRole(tick.role);
+              }
+            }}
+            style={{ cursor: "pointer" }}
+          >
+            <rect x={0} y={tick.labelY - 9} width={LEFT_PAD} height={14} fill="transparent" />
             <text
               x={LEFT_PAD - 4}
-              y={y(tick.value) + (tick.baseline ? -4 : 3)}
+              y={tick.labelY + 3}
               fontSize={8.5}
-              fill={tick.negative ? NEGATIVE : MUTED}
+              fill={tick.value < 0 ? NEGATIVE : MUTED}
               textAnchor="end"
+              style={{ textDecoration: "underline dotted" }}
             >
               {formatYenAxis(tick.value)}
             </text>
@@ -264,6 +299,22 @@ export function BalanceChart({ points, highlightDate }: BalanceChartProps) {
       <p className="mt-1 text-center text-[10px] text-gray-400">
         {HOME_TEXT.chartTapHint}
       </p>
+
+      {editingRole && editingTick ? (
+        <AxisEditModal
+          role={editingRole}
+          currentValue={editingTick.value}
+          onApply={(next) => {
+            onAxisChange({ ...axis, [editingRole]: next });
+            setEditingRole(null);
+          }}
+          onReset={() => {
+            onAxisChange({ ...axis, [editingRole]: null });
+            setEditingRole(null);
+          }}
+          onClose={() => setEditingRole(null)}
+        />
+      ) : null}
     </div>
   );
 }
