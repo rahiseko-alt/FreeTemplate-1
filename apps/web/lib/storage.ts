@@ -9,6 +9,7 @@ export function defaultAppData(): AppData {
     selectedDate: addMonths(todayISO(), 1),
     transactions: [],
     fixedDailyExpenses: [],
+    chartAxis: { top: null, middle: null, bottom: null },
   };
 }
 

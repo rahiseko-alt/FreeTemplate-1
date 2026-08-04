@@ -88,5 +88,6 @@ export function buildDemoAppData(): AppData {
     selectedDate: addMonths(today, FORECAST_MONTHS_AHEAD),
     transactions,
     fixedDailyExpenses,
+    chartAxis: { top: null, middle: null, bottom: null },
   };
 }

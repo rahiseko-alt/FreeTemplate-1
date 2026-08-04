@@ -183,7 +183,12 @@ export default function Home() {
         </div>
 
         <div className="mt-5 border-t border-gray-100 pt-4">
-          <BalanceChart points={series} highlightDate={data.selectedDate} />
+          <BalanceChart
+            points={series}
+            highlightDate={data.selectedDate}
+            axis={data.chartAxis}
+            onAxisChange={(next) => update({ ...data, chartAxis: next })}
+          />
         </div>
       </section>
 

@@ -24,9 +24,17 @@ export interface RecurringRule {
   memo: string;
 }
 
+/** グラフの縦軸目盛り。nullは自動（データから計算）を意味する。 */
+export interface ChartAxisConfig {
+  top: number | null;
+  middle: number | null;
+  bottom: number | null;
+}
+
 export interface AppData {
   startingBalance: number;
   selectedDate: string; // YYYY-MM-DD（残高予測の対象日。選び直さなくても固定される）
   transactions: Transaction[];
   fixedDailyExpenses: FixedDailyExpense[];
+  chartAxis: ChartAxisConfig;
 }

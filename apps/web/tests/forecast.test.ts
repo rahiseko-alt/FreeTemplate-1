@@ -10,6 +10,7 @@ function baseData(overrides: Partial<AppData> = {}): AppData {
     selectedDate: todayISO(),
     transactions: [],
     fixedDailyExpenses: [],
+    chartAxis: { top: null, middle: null, bottom: null },
     ...overrides,
   };
 }
