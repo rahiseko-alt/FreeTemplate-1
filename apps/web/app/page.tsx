@@ -9,8 +9,9 @@ import { FixedDailyExpenseSection } from "../components/FixedDailyExpenseSection
 import { RecurringSummary } from "../components/RecurringSummary";
 import { TransactionForm } from "../components/TransactionForm";
 import { TransactionList } from "../components/TransactionList";
-import { DETAIL_TEXT, HOME_DESCRIPTION, HOME_HEADING, HOME_TEXT } from "../lib/content";
+import { DEMO_TEXT, DETAIL_TEXT, HOME_DESCRIPTION, HOME_HEADING, HOME_TEXT } from "../lib/content";
 import { formatJP, todayISO } from "../lib/date";
+import { buildDemoAppData } from "../lib/demoData";
 import {
   currentBalance,
   dailyBalanceSeries,
@@ -71,6 +72,12 @@ export default function Home() {
   const expenses = data.transactions.filter((t) => t.type === "expense");
   const incomes = data.transactions.filter((t) => t.type === "income");
   const recurring = detectRecurringMonthly(data.transactions);
+  const hasAnyData = data.transactions.length > 0 || data.fixedDailyExpenses.length > 0;
+
+  function loadDemoData() {
+    if (hasAnyData && !window.confirm(DEMO_TEXT.confirmReplace)) return;
+    update(buildDemoAppData());
+  }
 
   function selectDate(dateIso: string) {
     if (!data) return;
@@ -110,6 +117,13 @@ export default function Home() {
           {HOME_HEADING}
         </h1>
         <p className="text-xs text-gray-500">{HOME_DESCRIPTION}</p>
+        <button
+          type="button"
+          onClick={loadDemoData}
+          className="mt-1 min-h-11 text-xs font-medium text-blue-600 underline underline-offset-2"
+        >
+          {hasAnyData ? DEMO_TEXT.replaceLabel : DEMO_TEXT.loadLabel}
+        </button>
       </header>
 
       <section className="rounded-2xl border border-gray-200 bg-gradient-to-b from-blue-50/70 to-white p-5 shadow-sm">

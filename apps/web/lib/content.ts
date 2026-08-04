@@ -32,6 +32,12 @@ export const HOME_TEXT = {
   chartShortfallSuffix: "（不足）",
 } as const;
 
+export const DEMO_TEXT = {
+  loadLabel: "サンプルデータを試す",
+  replaceLabel: "サンプルデータに置き換える",
+  confirmReplace: "現在の記録をサンプルデータに置き換えます。よろしいですか？",
+} as const;
+
 export const CALENDAR_TEXT = {
   prevMonth: "前の月",
   nextMonth: "次の月",
