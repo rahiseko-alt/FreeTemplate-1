@@ -30,6 +30,9 @@ export const HOME_TEXT = {
   currentBalanceSuffix: "円",
   chartHeading: "残高の推移",
   chartShortfallSuffix: "（不足）",
+  chartTodayLabel: "今日",
+  chartCrossingIntoShortfall: "から不足",
+  chartTapHint: "タップすると、その日の残高が分かります",
 } as const;
 
 export const DEMO_TEXT = {
