@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { Accordion } from "../components/Accordion";
 import { BalanceChart } from "../components/BalanceChart";
 import { Calendar } from "../components/Calendar";
 import { FixedDailyExpenseSection } from "../components/FixedDailyExpenseSection";
@@ -37,6 +38,8 @@ export default function Home() {
   const [data, setData] = useState<AppData | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
   const [activeTab, setActiveTab] = useState<RecordTab>("expense");
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isRecordsOpen, setIsRecordsOpen] = useState(false);
 
   useEffect(() => {
     setData(loadAppData());
@@ -101,12 +104,12 @@ export default function Home() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-6 bg-white px-4 py-6">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-4 bg-white px-4 py-4">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+        <h1 className="text-lg font-bold tracking-tight text-gray-900">
           {HOME_HEADING}
         </h1>
-        <p className="mt-1 text-sm text-gray-500">{HOME_DESCRIPTION}</p>
+        <p className="text-xs text-gray-500">{HOME_DESCRIPTION}</p>
       </header>
 
       <section className="rounded-2xl border border-gray-200 bg-gradient-to-b from-blue-50/70 to-white p-5 shadow-sm">
@@ -170,10 +173,20 @@ export default function Home() {
         </div>
       </section>
 
-      <TransactionForm onAdd={addTransaction} />
+      <Accordion
+        title={DETAIL_TEXT.entryFormHeading}
+        open={isFormOpen}
+        onToggle={() => setIsFormOpen((v) => !v)}
+      >
+        <TransactionForm onAdd={addTransaction} />
+      </Accordion>
 
-      <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div role="tablist" className="grid grid-cols-3 gap-1 border-b border-gray-200 bg-gray-50 p-1">
+      <Accordion
+        title={DETAIL_TEXT.recordsListHeading}
+        open={isRecordsOpen}
+        onToggle={() => setIsRecordsOpen((v) => !v)}
+      >
+        <div role="tablist" className="grid grid-cols-3 gap-1 rounded-lg bg-gray-50 p-1">
           {RECORD_TABS.map((tab) => (
             <button
               key={tab.key}
@@ -192,7 +205,7 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="p-4">
+        <div className="mt-4">
           {activeTab === "expense" ? (
             <TransactionList
               emptyMessage={DETAIL_TEXT.emptyExpense}
@@ -224,7 +237,7 @@ export default function Home() {
             </div>
           ) : null}
         </div>
-      </section>
+      </Accordion>
     </main>
   );
 }

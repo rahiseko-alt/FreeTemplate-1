@@ -42,14 +42,7 @@ export function TransactionForm({ onAdd }: TransactionFormProps) {
   const accent = type === "expense" ? "red" : "blue";
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-gray-50 p-4 shadow-sm"
-    >
-      <h2 className="text-sm font-semibold text-gray-900">
-        {DETAIL_TEXT.entryFormHeading}
-      </h2>
-
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <div className="grid grid-cols-2 gap-2">
         <label className="block">
           <input

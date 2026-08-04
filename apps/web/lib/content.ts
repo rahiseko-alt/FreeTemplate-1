@@ -45,6 +45,7 @@ export const DETAIL_TEXT = {
   emptyExpense: "記録がありません",
   emptyIncome: "記録がありません",
   entryFormHeading: "記録を追加",
+  recordsListHeading: "記録を見る",
   dateLabel: "日付",
   typeIncome: "in",
   typeExpense: "out",
