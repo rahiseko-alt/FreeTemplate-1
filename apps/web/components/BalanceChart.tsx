@@ -304,6 +304,11 @@ export function BalanceChart({ points, highlightDate, axis, onAxisChange }: Bala
         <AxisEditModal
           role={editingRole}
           currentValue={editingTick.value}
+          bounds={{
+            top: ticks.find((t) => t.role === "top")!.value,
+            middle: ticks.find((t) => t.role === "middle")!.value,
+            bottom: ticks.find((t) => t.role === "bottom")!.value,
+          }}
           onApply={(next) => {
             onAxisChange({ ...axis, [editingRole]: next });
             setEditingRole(null);

@@ -9,8 +9,15 @@ import { FixedDailyExpenseSection } from "../components/FixedDailyExpenseSection
 import { RecurringSummary } from "../components/RecurringSummary";
 import { TransactionForm } from "../components/TransactionForm";
 import { TransactionList } from "../components/TransactionList";
-import { DEMO_TEXT, DETAIL_TEXT, HOME_DESCRIPTION, HOME_HEADING, HOME_TEXT } from "../lib/content";
-import { formatJP, todayISO } from "../lib/date";
+import {
+  DEMO_TEXT,
+  DETAIL_TEXT,
+  HOME_DESCRIPTION,
+  HOME_HEADING,
+  HOME_TEXT,
+  MAX_FORECAST_DAYS,
+} from "../lib/content";
+import { addDays, formatJP, todayISO } from "../lib/date";
 import { buildDemoAppData } from "../lib/demoData";
 import {
   currentBalance,
@@ -81,7 +88,8 @@ export default function Home() {
 
   function selectDate(dateIso: string) {
     if (!data) return;
-    update({ ...data, selectedDate: dateIso });
+    const maxDate = addDays(todayISO(), MAX_FORECAST_DAYS);
+    update({ ...data, selectedDate: dateIso > maxDate ? maxDate : dateIso });
   }
 
   function addTransaction(t: Transaction) {
@@ -152,15 +160,24 @@ export default function Home() {
               selected={data.selectedDate}
               onSelect={selectDate}
               onClose={() => setShowCalendar(false)}
+              maxDate={addDays(todayISO(), MAX_FORECAST_DAYS)}
             />
           </div>
         ) : null}
 
         <div className="mt-5">
           <p className="text-xs font-medium text-gray-500">
-            {isToday ? HOME_TEXT.balanceLabelToday : HOME_TEXT.balanceLabelFuture}
+            {isShortfall
+              ? isToday
+                ? HOME_TEXT.shortfallAmountLabelToday
+                : HOME_TEXT.shortfallAmountLabelFuture
+              : isToday
+                ? HOME_TEXT.balanceLabelToday
+                : HOME_TEXT.balanceLabelFuture}
           </p>
-          <p className="text-6xl font-bold tracking-tight text-gray-900">
+          <p
+            className={`text-6xl font-bold tracking-tight ${isShortfall ? "text-red-600" : "text-gray-900"}`}
+          >
             {displayAmount.toLocaleString("ja-JP")}
             <span className="ml-1 text-xl font-normal text-gray-500">円</span>
           </p>

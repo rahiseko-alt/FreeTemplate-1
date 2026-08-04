@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { addDays, todayISO } from "../lib/date";
-import { currentBalance, forecastBalance } from "../lib/forecast";
-import type { AppData } from "../lib/types";
+import { currentBalance, dailyProjectedDelta, forecastBalance } from "../lib/forecast";
+import type { AppData, RecurringRule } from "../lib/types";
 
 function baseData(overrides: Partial<AppData> = {}): AppData {
   return {
@@ -39,5 +39,36 @@ describe("forecastBalance", () => {
     });
     const target = addDays(todayISO(), 3);
     expect(forecastBalance(data, target)).toBe(currentBalance(data) - 300 * 3);
+  });
+});
+
+describe("dailyProjectedDelta", () => {
+  const rule31: RecurringRule = {
+    type: "expense",
+    dayOfMonth: 31,
+    amount: 1_000,
+    memo: "家賃",
+  };
+
+  it("fires a day-31 rule on day 31 when the month has one", () => {
+    const data = baseData();
+    expect(dailyProjectedDelta(data, "2026-01-31", [rule31])).toBe(-1_000);
+  });
+
+  it("fires a day-31 rule on the last day of a 30-day month", () => {
+    const data = baseData();
+    expect(dailyProjectedDelta(data, "2026-04-30", [rule31])).toBe(-1_000);
+    expect(dailyProjectedDelta(data, "2026-04-29", [rule31])).toBe(0);
+  });
+
+  it("fires a day-31 rule on Feb 28 in a non-leap year", () => {
+    const data = baseData();
+    expect(dailyProjectedDelta(data, "2026-02-28", [rule31])).toBe(-1_000);
+  });
+
+  it("fires a day-31 rule on Feb 29 in a leap year, not Feb 28", () => {
+    const data = baseData();
+    expect(dailyProjectedDelta(data, "2028-02-28", [rule31])).toBe(0);
+    expect(dailyProjectedDelta(data, "2028-02-29", [rule31])).toBe(-1_000);
   });
 });
